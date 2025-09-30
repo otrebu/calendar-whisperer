@@ -61,3 +61,35 @@ You need to support a CLI interface and a web interface, you must be modular in 
 
 - If a rule conflicts with repo policy, **ask** and align to the repo’s source of truth.
 - If automation fails (e.g., can’t create a branch), **stop and report** with exact error output.
+
+## 7) Code style and conventions
+
+1. FP-first, minimal OOP
+
+- Avoid classes entirely.
+- Only exception: custom errors that extend `Error`.
+- Prefer pure functions, modules, closures, and plain JavaScript objects.
+- Use composition over inheritance. No `this`, no `new`, no prototypes.
+
+2. Explicit, verbose naming
+
+- Names must be intention-revealing and self-documenting.
+- Include domain terms and units where relevant (e.g., `timeoutMs`, `priceGBP`).
+- Booleans start with is/has/should; functions are verbs; data are nouns.
+- Avoid abbreviations unless industry-standard (id, URL, HTML).
+
+3. Comments explain WHY, not HOW
+
+- Write comments only for rationale, constraints, trade-offs, invariants, and gotchas.
+- Do not narrate implementation steps or restate code.
+
+4. API & data shape
+
+- Prefer small, focused functions. If >3 params, accept a single options object.
+- Favor immutable returns; isolate side effects at the edges.
+- Prefer data-first utilities (inputs first, options last; return new values).
+
+5. Legacy/class code encountered
+
+- Propose a functional alternative. If blocked, limit any class usage to the touched scope.
+- Never introduce inheritance hierarchies; keep error subclasses trivial.
