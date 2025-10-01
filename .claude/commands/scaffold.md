@@ -1,54 +1,131 @@
-Act as my scaffolding assistant. When starting any new project, apply these defaults and only deviate if the context makes it clearly unnecessary.
+# Project Scaffolding Assistant
 
-1. Package & workspace
+When starting any new project, follow these defaults. Only deviate when context makes it clearly unnecessary.
 
-- Always use **pnpm**.
-- Prefer **pnpm workspaces** when there’s more than one package, shared utilities, or likely future packages. Avoid overengineering; if single-package is enough, keep it simple. Note it’s easier to add workspaces at the start than later.
+## Core Principles
+- **CLI-first**: Always use official CLIs/initializers with non-interactive flags
+- **Start simple**: Minimal config first, complexity only when needed
+- **Document decisions**: Record setup commands and rationale in README
 
-2. Language & build
+## Setup Checklist
 
-- Always use **TypeScript** with **"strict": true**.
-- Use **Vite** for web apps and libraries when appropriate; otherwise pick the simplest build/runner that fits the target.
-- Use **tsx** for running TS scripts and CLIs during development.
+### 1. Foundation
+```bash
+# Initialize project
+pnpm init -y
 
-3. Formatting & tests
+# TypeScript (always strict)
+pnpm add -D typescript @types/node
+pnpm exec tsc --init --strict
 
-- Always add **Prettier** for formatting with a minimal config.
-- Always add **Vitest** for testing. Set up basic test scripts and coverage later if needed.
+# Formatting (always Prettier, minimal config)
+pnpm add -D prettier
+echo '{}' > .prettierrc.json
 
-4. Path aliases
+# Testing (always Vitest)
+pnpm add -D vitest @vitest/ui
+```
 
-- Always configure path aliases (e.g. `@/*` → `src/*`).
-- Ensure aliases work in **tsconfig.json** and in the chosen runner/bundler (Vite `resolve.alias`, tsx with tsconfig-paths when needed).
+### 2. Project Structure
+- **Single package**: Keep it simple if that's enough
+- **Multiple packages**: Use pnpm workspaces from the start (easier than migrating later)
+  ```bash
+  echo 'packages:\n  - packages/*' > pnpm-workspace.yaml
+  ```
 
-5. Environment
+### 3. Build & Development
+- **Web apps/libraries**: Vite (`pnpm dlx create-vite@latest app-name --template react-ts`)
+- **Node scripts/CLIs**: tsx (`pnpm add -D tsx`)
+- **Other**: Simplest tool that fits the target
 
-- Use **dotenv** for environment variables. Provide a `.env.example`.
+### 4. Configuration Standards
 
-6. Libraries — pick only when they make sense for the job
+#### Path Aliases (always configure)
+```typescript
+// tsconfig.json
+{
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] }
+  }
+}
 
-- **execa** for running child processes in scripts/CLIs.
-- **vite** for modern web build/dev when applicable.
-- **vitest** for tests (as above).
-- **boxen**, **chalk**, **ora** for CLI UX.
-- **commander** for CLI argument parsing/commands.
-- **date-fns** for date utilities (avoid heavy date libs).
-- **dotenv** for env (as above).
-- **tsx** for TS execution (as above).
-- **prisma** if there’s a database and a schema-first workflow is suitable.
-- **x-state** only if complex, long-lived state machines are truly needed.
+// vite.config.ts (if using Vite)
+resolve: {
+  alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
+}
+```
 
-7. Scripts & basics
+#### Environment Variables
+```bash
+pnpm add dotenv
+cp .env.example .env  # Always provide example
+```
 
-- Add `pnpm` scripts for dev, build, test, and type-check.
-- Keep initial config minimal; prefer adding complexity incrementally.
-- Document choices in the README (briefly) so future changes are easy.
+#### Scripts (package.json)
+```json
+{
+  "scripts": {
+    "dev": "...",
+    "build": "...",
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
+  }
+}
+```
 
-8. Initialization via official CLIs (preferred)
+### 5. Common Libraries (add only when needed)
 
-- Prefer **official generators/initializers** to create configs and files; don’t handcraft JSON by default.
-- Use the tool’s `create`/`init`/`setup` when available (e.g., `pnpm init -y` for `package.json`, `pnpm dlx create-vite@latest` for Vite templates, `tsc --init --strict` for `tsconfig`, `pnpm dlx prisma init` for Prisma).
-- Only fall back to manual edits for small, explicit tweaks after the CLI run.
-- Ensure generated scripts and aliases are wired end-to-end.
+| Purpose | Library | When to Use |
+|---------|---------|-------------|
+| Child processes | `execa` | Scripts/CLIs needing process control |
+| CLI UX | `chalk`, `ora`, `boxen` | Interactive terminal apps |
+| CLI parsing | `commander` | Multi-command CLIs |
+| Dates | `date-fns` | Date manipulation (avoid moment.js) |
+| Database | `prisma` | Schema-first database workflow |
+| State machines | `xstate` | Complex, long-lived state logic |
 
-Follow the principle: simplest thing that can work now, but with sensible defaults (pnpm, TS strict, Prettier, Vitest, aliases) that scale later.
+## CLI Initialization Examples
+
+Always use official CLIs with flags for reproducibility:
+
+```bash
+# Vite React app
+pnpm dlx create-vite@latest my-app --template react-ts
+
+# Prisma setup
+pnpm add -D prisma
+pnpm dlx prisma init
+
+# Next.js app
+pnpm dlx create-next-app@latest my-app --typescript --tailwind --app --use-pnpm
+
+# Vitest config
+pnpm exec vitest init --ui
+```
+
+## Documentation Template
+
+Add to README.md:
+
+```markdown
+## Setup Commands Used
+\```bash
+# Exact commands for reproducibility
+pnpm init -y
+pnpm add -D typescript @types/node
+# ... etc
+\```
+
+## Architecture Decisions
+- **pnpm**: Fast, efficient package management
+- **TypeScript strict**: Catch errors at compile time
+- **Path aliases**: Cleaner imports, easier refactoring
+- **[Other choices]**: [Rationale]
+```
+
+## Rules of Thumb
+1. **Never hand-edit config files** if a CLI exists
+2. **Use `pnpm dlx`** for one-time runners (avoid global installs)
+3. **Pin versions** in initialization commands
+4. **Fail fast** if official tooling is missing - suggest alternatives
+5. **Test immediately** after each setup step to verify configuration
