@@ -1,67 +1,59 @@
-# Project Scaffolding Assistant
+# Project Scaffolding Rules
 
-When starting any new project, follow these defaults. Only deviate when context makes it clearly unnecessary.
+Apply these defaults for all new projects. Only deviate when context makes it clearly unnecessary.
 
 ## Core Principles
-- **CLI-first**: Always use official CLIs/initializers with non-interactive flags
-- **Start simple**: Minimal config first, complexity only when needed
-- **Document decisions**: Record setup commands and rationale in README
+- **CLI-first**: Use official CLIs with non-interactive flags
+- **Type-safe runtime**: Zod for all schemas, configs, and external data
+- **Start simple**: Minimal config, add complexity only when needed
 
 ## Setup Checklist
 
 ### 1. Foundation
 ```bash
-# Initialize project
-pnpm init -y
-
-# TypeScript (always strict)
+# Always
+pnpm init
 pnpm add -D typescript @types/node
+pnpm add zod
 pnpm exec tsc --init --strict
-
-# Formatting (always Prettier, minimal config)
-pnpm add -D prettier
-echo '{}' > .prettierrc.json
-
-# Testing (always Vitest)
+pnpm add -D prettier && echo '{}' > .prettierrc.json
 pnpm add -D vitest @vitest/ui
 ```
 
 ### 2. Project Structure
-- **Single package**: Keep it simple if that's enough
-- **Multiple packages**: Use pnpm workspaces from the start (easier than migrating later)
-  ```bash
-  echo 'packages:\n  - packages/*' > pnpm-workspace.yaml
-  ```
+- **Single package**: Default choice
+- **Workspaces**: When multiple packages likely (`echo 'packages:\n  - packages/*' > pnpm-workspace.yaml`)
 
-### 3. Build & Development
-- **Web apps/libraries**: Vite (`pnpm dlx create-vite@latest app-name --template react-ts`)
-- **Node scripts/CLIs**: tsx (`pnpm add -D tsx`)
-- **Other**: Simplest tool that fits the target
+### 3. Build Tools
+- **Web**: Vite (`pnpm dlx create-vite@latest app --template react-ts`)
+- **Node scripts**: tsx (`pnpm add -D tsx`)
 
-### 4. Configuration Standards
+### 4. Essential Config
 
-#### Path Aliases (always configure)
+#### Environment (always with Zod)
+```typescript
+// src/config/env.ts
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().default(3000),
+  DATABASE_URL: z.string().url().optional(),
+});
+
+export const env = envSchema.parse(process.env);
+```
+
+#### Path Aliases (always)
 ```typescript
 // tsconfig.json
-{
-  "compilerOptions": {
-    "paths": { "@/*": ["./src/*"] }
-  }
-}
+"paths": { "@/*": ["./src/*"] }
 
 // vite.config.ts (if using Vite)
-resolve: {
-  alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
-}
+alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
 ```
 
-#### Environment Variables
-```bash
-pnpm add dotenv
-cp .env.example .env  # Always provide example
-```
-
-#### Scripts (package.json)
+#### package.json Scripts
 ```json
 {
   "scripts": {
@@ -73,59 +65,49 @@ cp .env.example .env  # Always provide example
 }
 ```
 
-### 5. Common Libraries (add only when needed)
+### 5. Libraries (add when needed)
 
-| Purpose | Library | When to Use |
-|---------|---------|-------------|
-| Child processes | `execa` | Scripts/CLIs needing process control |
-| CLI UX | `chalk`, `ora`, `boxen` | Interactive terminal apps |
+| Purpose | Library | When |
+|---------|---------|------|
+| **Schemas** | `zod` | **ALWAYS** |
+| Environment | `dotenv` | Always |
 | CLI parsing | `commander` | Multi-command CLIs |
-| Dates | `date-fns` | Date manipulation (avoid moment.js) |
-| Database | `prisma` | Schema-first database workflow |
-| State machines | `xstate` | Complex, long-lived state logic |
+| CLI UX | `chalk`, `ora` | Interactive terminals |
+| Dates | `date-fns` | Date manipulation |
+| Database | `prisma` | Schema-first DB |
+| Processes | `execa` | Child process control |
 
-## CLI Initialization Examples
+## Common Patterns
 
-Always use official CLIs with flags for reproducibility:
+### Zod Schemas
+```typescript
+// Config schema
+export const configSchema = z.object({
+  feature: z.boolean().default(false),
+  apiUrl: z.string().url(),
+  retries: z.number().min(0).max(10),
+});
 
+// User schema with type inference
+export const userSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  role: z.enum(['admin', 'user']),
+});
+
+export type User = z.infer<typeof userSchema>;
+```
+
+## CLI Commands
 ```bash
-# Vite React app
-pnpm dlx create-vite@latest my-app --template react-ts
-
-# Prisma setup
-pnpm add -D prisma
-pnpm dlx prisma init
-
-# Next.js app
-pnpm dlx create-next-app@latest my-app --typescript --tailwind --app --use-pnpm
-
-# Vitest config
-pnpm exec vitest init --ui
+# Examples - always use flags for reproducibility
+pnpm dlx create-vite@latest app --template react-ts
+pnpm dlx create-next-app@latest app --typescript --use-pnpm
+pnpm add -D prisma && pnpm dlx prisma init
 ```
 
-## Documentation Template
-
-Add to README.md:
-
-```markdown
-## Setup Commands Used
-\```bash
-# Exact commands for reproducibility
-pnpm init -y
-pnpm add -D typescript @types/node
-# ... etc
-\```
-
-## Architecture Decisions
-- **pnpm**: Fast, efficient package management
-- **TypeScript strict**: Catch errors at compile time
-- **Path aliases**: Cleaner imports, easier refactoring
-- **[Other choices]**: [Rationale]
-```
-
-## Rules of Thumb
-1. **Never hand-edit config files** if a CLI exists
-2. **Use `pnpm dlx`** for one-time runners (avoid global installs)
-3. **Pin versions** in initialization commands
-4. **Fail fast** if official tooling is missing - suggest alternatives
-5. **Test immediately** after each setup step to verify configuration
+## Rules
+1. **Validate all external data** with Zod (env, APIs, user input)
+2. **Derive types** from schemas: `z.infer<typeof schema>`
+3. **Use official CLIs** - never hand-craft configs
+4. **Document commands** in README for reproducibility
