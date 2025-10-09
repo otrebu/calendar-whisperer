@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": ["vitest.config.ts", "eslint.config.js", "release.config.js"],
+  "references": [{ "path": "./packages/core" }, { "path": "./packages/cli" }],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}
