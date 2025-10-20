@@ -58,8 +58,10 @@ const eventsCommand = new Command("events")
 
         try {
           // Authenticate and get the authentication record
-          const authRecord =
-            await authenticateWithDeviceCode(credential, config.graphScopes);
+          const authRecord = await authenticateWithDeviceCode(
+            credential,
+            config.graphScopes,
+          );
 
           if (authRecord === undefined) {
             throw new Error("Authentication failed to return a record");
@@ -69,7 +71,10 @@ const eventsCommand = new Command("events")
           await storeAuthenticationRecord(authRecord, config.cacheDirectory);
 
           // Get access token
-          const authResult = await getAccessToken(credential, config.graphScopes);
+          const authResult = await getAccessToken(
+            credential,
+            config.graphScopes,
+          );
           const { accessToken: token } = authResult;
           accessToken = token;
 
@@ -91,7 +96,10 @@ const eventsCommand = new Command("events")
         );
 
         try {
-          const authResult = await getAccessToken(credential, config.graphScopes);
+          const authResult = await getAccessToken(
+            credential,
+            config.graphScopes,
+          );
           const { accessToken: token } = authResult;
           accessToken = token;
         } catch {

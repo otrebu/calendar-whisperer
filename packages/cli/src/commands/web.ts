@@ -1,7 +1,4 @@
-import {
-  loadAuthenticationRecord,
-  loadConfig,
-} from "@calendar-whisperer/core";
+import { loadAuthenticationRecord, loadConfig } from "@calendar-whisperer/core";
 import { Command } from "@commander-js/extra-typings";
 import chalk from "chalk";
 import open from "open";
