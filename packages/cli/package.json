@@ -18,6 +18,7 @@
     "commander": "^12.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "open": "^10.1.0",
     "ora": "^8.1.1"
   },
   "devDependencies": {

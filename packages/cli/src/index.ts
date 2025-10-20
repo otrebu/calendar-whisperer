@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { eventsCommand } from "./commands/events.js";
+import { webCommand } from "./commands/web.js";
 
 // Load .env from monorepo root
 const DIRNAME = fileURLToPath(new URL(".", import.meta.url));
@@ -17,5 +18,6 @@ const program = new Command()
   .version("0.1.0");
 
 program.addCommand(eventsCommand);
+program.addCommand(webCommand);
 
 program.parse();

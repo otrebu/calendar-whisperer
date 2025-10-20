@@ -10,6 +10,8 @@ A CLI tool for developers and a simple web interface for less technical people.
 - 🔐 **Azure AD authentication** with device code flow and token caching
 - 📅 **Microsoft Graph integration** to fetch calendar events
 - 🖥️ **CLI interface** with beautiful terminal UI (boxen, chalk, ora)
+- 🌐 **Web interface** with React, Vite, and Tailwind CSS
+- 🚀 **Local server** with Fastify for privacy-first architecture
 - ✅ **TypeScript strict mode** with comprehensive type safety
 - 🧪 **Vitest** for testing (unit + integration)
 - 📝 **Zod schemas** for runtime validation
@@ -23,7 +25,9 @@ A CLI tool for developers and a simple web interface for less technical people.
 calendar-whisperer/
 ├── packages/
 │   ├── core/              # Shared: auth, MS Graph client, types
-│   └── cli/               # CLI interface with commander
+│   ├── cli/               # CLI interface with commander
+│   ├── server/            # Local Fastify API server
+│   └── web/               # React web interface
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
 └── .env                   # Your Azure credentials (not committed)
@@ -76,6 +80,32 @@ CACHE_DIRECTORY=.auth-cache
 ```
 
 ## Usage
+
+### Web Interface (Recommended)
+
+Launch the web interface with a single command:
+
+```bash
+# First authenticate (one-time)
+pnpm dev events
+
+# Then launch web interface
+pnpm dev web
+
+# Or with custom port
+pnpm dev web --port 3001
+
+# Don't open browser automatically
+pnpm dev web --no-open
+```
+
+The web command will:
+
+1. Check for authentication (reuses CLI token)
+2. Start local server on port 3001
+3. Automatically open browser to `http://localhost:3001`
+
+**Note**: Requires internet connection. Web interface fetches fresh data from Microsoft Graph API.
 
 ### CLI
 
@@ -195,6 +225,9 @@ Command-line interface built with:
 - ✅ Token caching (persists across sessions)
 - ✅ Fetch calendar events for any date
 - ✅ Beautiful terminal UI
+- ✅ **Web interface with React and Tailwind CSS**
+- ✅ **Local server with Fastify** (privacy-first, localhost only)
+- ✅ **Token sharing between CLI and web** (seamless authentication)
 - ✅ Timezone support
 - ✅ TypeScript strict mode
 - ✅ Unit and integration tests
@@ -205,7 +238,7 @@ Command-line interface built with:
 - [ ] Focus time calculation
 - [ ] Weekly/monthly summaries
 - [ ] Export to CSV/JSON
-- [ ] Web interface
+- [ ] Offline mode with calendar caching
 - [ ] Multi-account support
 
 ## Troubleshooting
@@ -219,6 +252,16 @@ Command-line interface built with:
 ### "No valid cached token found"
 
 This is normal on first run. Follow the device code prompt to authenticate.
+
+### Web interface shows "Server Not Running"
+
+1. Make sure you authenticated first: `pnpm dev events`
+2. Check that no other process is using port 3001
+3. Try specifying a different port: `pnpm dev web --port 3002`
+
+### Web interface shows "Cannot reach Microsoft Graph API"
+
+The web interface requires an active internet connection to fetch calendar data from Microsoft Graph API.
 
 ### TypeScript errors
 

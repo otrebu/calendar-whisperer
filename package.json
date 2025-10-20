@@ -5,6 +5,8 @@
   "description": "Provide insights about time spent in meetings and focus work",
   "scripts": {
     "dev": "pnpm --filter cli dev",
+    "dev:server": "pnpm --filter server dev",
+    "dev:web": "pnpm --filter web dev",
     "build": "pnpm -r build",
     "test": "vitest",
     "test:run": "vitest run",
