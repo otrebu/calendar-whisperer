@@ -11,6 +11,7 @@
 **Based on:** option-2.md
 **Changes:** Removed all offline-capability requirements and calendar data caching mechanisms. Simplified to assume always-online operation for calendar data fetching. Token caching remains for authentication convenience.
 **Impact:**
+
 - Reduced implementation complexity by ~30%
 - Simplified state management (no offline/online transitions)
 - Faster initial implementation (14 days vs 17 days)
@@ -133,6 +134,7 @@ export function createAuthRouter(cacheDirectory: string) {
 ### 3. Data Fetching Strategy
 
 **Always-Online Approach:**
+
 - Calendar events fetched directly from Microsoft Graph API on every request
 - No local caching of calendar data
 - Token remains cached for authentication convenience
@@ -150,6 +152,7 @@ User sees events    ← Web UI        ← Local server    ← Live calendar data
 ### 4. Deployment Model
 
 **Local Only (Initial):**
+
 - Server runs on localhost (default port: 3001)
 - Web UI served from localhost (dev: 3000, prod: bundled with server)
 - Only accessible from user's machine
@@ -157,6 +160,7 @@ User sees events    ← Web UI        ← Local server    ← Live calendar data
 - **Requires active internet connection for calendar data**
 
 **Optional Cloud Deployment (Future):**
+
 - Deploy server to cloud (Railway, Fly.io)
 - Web UI served by server
 - Requires adding authentication layer
@@ -220,6 +224,7 @@ export const webCommand = new Command("web")
 **Server Lifecycle:** XState (for managing server start/stop/error states)
 
 **Why XState for Server Lifecycle?**
+
 - Starting server is a complex async flow with multiple states
 - Error recovery (port in use, authentication failure)
 - User feedback during state transitions
@@ -286,7 +291,10 @@ export const serverMachine = setup({
       invoke: {
         src: "stopServer",
         onDone: [
-          { target: "starting", guard: ({ event }) => event.type === "RESTART" },
+          {
+            target: "starting",
+            guard: ({ event }) => event.type === "RESTART",
+          },
           { target: "idle" },
         ],
       },
@@ -307,6 +315,7 @@ export const serverMachine = setup({
 ### Phase 1: Server Package (4 days)
 
 **Day 1-2: Server Setup**
+
 - [ ] Create `packages/server/` directory
 - [ ] Initialize package.json with dependencies (Express, CORS)
 - [ ] Setup tsconfig.json
@@ -316,6 +325,7 @@ export const serverMachine = setup({
 - [ ] Test server starts and responds
 
 **Day 3: Authentication API**
+
 - [ ] Create auth router
 - [ ] Implement token endpoint (reads from CLI cache)
 - [ ] Add token validation
@@ -323,6 +333,7 @@ export const serverMachine = setup({
 - [ ] Add error handling (no token, expired token)
 
 **Day 4: Calendar API**
+
 - [ ] Create calendar router
 - [ ] Implement events endpoint (proxies to Graph API)
 - [ ] Add request validation
@@ -330,6 +341,7 @@ export const serverMachine = setup({
 - [ ] Add error handling (network failures, API errors)
 
 **Deliverables:**
+
 - ✅ Working local server
 - ✅ Auth and calendar APIs functional
 - ✅ Integration with core package
@@ -338,6 +350,7 @@ export const serverMachine = setup({
 ### Phase 2: CLI Integration (3 days)
 
 **Day 5-6: Web Command**
+
 - [ ] Add 'web' command to CLI
 - [ ] Implement server process spawning
 - [ ] Add port configuration
@@ -346,6 +359,7 @@ export const serverMachine = setup({
 - [ ] Handle process signals (SIGINT, SIGTERM)
 
 **Day 7: Server Lifecycle Management**
+
 - [ ] Create server state machine (XState)
 - [ ] Implement state transitions
 - [ ] Add error recovery
@@ -353,6 +367,7 @@ export const serverMachine = setup({
 - [ ] Test edge cases (port in use, authentication failure, network down)
 
 **Deliverables:**
+
 - ✅ CLI web command functional
 - ✅ Server lifecycle managed
 - ✅ Robust error handling
@@ -360,6 +375,7 @@ export const serverMachine = setup({
 ### Phase 3: Web Frontend (4 days)
 
 **Day 8-9: Web Package Setup**
+
 - [ ] Create `packages/web/` directory
 - [ ] Initialize package.json
 - [ ] Setup Vite configuration
@@ -370,6 +386,7 @@ export const serverMachine = setup({
 - [ ] Add loading and error states
 
 **Day 10-11: UI Components**
+
 - [ ] Create Calendar component
 - [ ] Create EventList component
 - [ ] Create Header component
@@ -378,6 +395,7 @@ export const serverMachine = setup({
 - [ ] Style with Tailwind
 
 **Deliverables:**
+
 - ✅ Functional web UI
 - ✅ Connected to local server
 - ✅ End-to-end flow working
@@ -385,6 +403,7 @@ export const serverMachine = setup({
 ### Phase 4: Testing and Documentation (3 days)
 
 **Day 12: Testing**
+
 - [ ] Server tests
 - [ ] CLI command tests
 - [ ] Frontend component tests
@@ -392,6 +411,7 @@ export const serverMachine = setup({
 - [ ] Manual testing (happy path, error scenarios)
 
 **Day 13-14: Documentation**
+
 - [ ] Update README with web command
 - [ ] Document server API
 - [ ] Add troubleshooting guide (network errors, auth failures)
@@ -400,6 +420,7 @@ export const serverMachine = setup({
 - [ ] Document internet connection requirement
 
 **Deliverables:**
+
 - ✅ Comprehensive tests
 - ✅ Complete documentation
 - ✅ Ready for use
@@ -441,15 +462,18 @@ export const serverMachine = setup({
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** Small team or solo developer
 - **Skill Level:** Comfortable with backend + frontend
 - **Experience:** Familiar with Express, process management
 
 ### Timeline Constraints
+
 - **Urgency:** Can wait 2-3 weeks for initial version
 - **Iteration:** Prefer complete local solution before cloud
 
 ### User Requirements
+
 - **Privacy:** Data privacy is critical concern
 - **Access Pattern:** Users primarily work from single machine
 - **Authentication:** Want seamless auth between CLI and web
@@ -457,6 +481,7 @@ export const serverMachine = setup({
 - **Fresh Data:** Always want latest calendar state
 
 ### Technical Context
+
 - **Infrastructure:** Want to avoid cloud dependencies initially
 - **Control:** Want full control over where code runs
 - **Flexibility:** May add cloud deployment later
@@ -587,56 +612,72 @@ export const serverMachine = setup({
 ## Risk Mitigation
 
 ### Risk: No Internet Connection
+
 **Mitigation:**
+
 - Clear error message when server cannot reach Graph API
 - Health check endpoint verifies internet connectivity
 - Document internet requirement prominently
 - Graceful degradation in UI (show last error, retry button)
 
 ### Risk: API Rate Limits
+
 **Mitigation:**
+
 - Monitor Graph API rate limits in responses
 - Implement exponential backoff for retries
 - Document expected API usage
 - Future: Add optional caching layer if rate limits become issue
 
 ### Risk: Slow API Response Times
+
 **Mitigation:**
+
 - Show loading state immediately on user action
 - Implement request timeout (10s default)
 - Cache token to avoid auth roundtrip on every request
 - Document expected response times (1-3s typical)
 
 ### Risk: Port Conflicts
+
 **Mitigation:**
+
 - Dynamic port selection if default in use
 - Allow user to specify port via flag
 - Clear error message with instructions
 - Document port requirements
 
 ### Risk: Server Process Management
+
 **Mitigation:**
+
 - Use XState for robust state management
 - Handle all process signals gracefully
 - Auto-restart on crash
 - Comprehensive error logging
 
 ### Risk: CORS Issues
+
 **Mitigation:**
+
 - Proper CORS configuration for localhost
 - Development mode allows all local origins
 - Document CORS troubleshooting
 - Test with multiple browsers
 
 ### Risk: Token Security
+
 **Mitigation:**
+
 - Tokens only served over localhost
 - No token persistence in web storage
 - Token validation before use
 - Document security model
 
 ### Risk: User Confusion
+
 **Mitigation:**
+
 - Clear CLI output during server start
 - Browser opens automatically
 - Visual feedback for all states
@@ -648,6 +689,7 @@ export const serverMachine = setup({
 ## Success Metrics
 
 ### Technical Metrics
+
 - ✅ Server starts in < 3 seconds
 - ✅ Web connects to server in < 1 second
 - ✅ Calendar data loads in < 2 seconds (network dependent)
@@ -655,6 +697,7 @@ export const serverMachine = setup({
 - ✅ Zero memory leaks
 
 ### User Experience Metrics
+
 - ✅ One command to launch (`calendar-whisperer web`)
 - ✅ Browser opens automatically
 - ✅ No re-authentication needed
@@ -662,6 +705,7 @@ export const serverMachine = setup({
 - ✅ Clear feedback on network issues
 
 ### Reliability Metrics
+
 - ✅ Server uptime > 99%
 - ✅ Automatic recovery from crashes
 - ✅ No port conflicts
@@ -743,7 +787,7 @@ export function createCalendarRouter(cacheDirectory: string) {
       const graphClient = createGraphClient(authResult.accessToken);
       const events = await graphClient.getCalendarEvents(
         new Date(date as string),
-        timeZone as string
+        timeZone as string,
       );
 
       res.json(events);
@@ -751,13 +795,13 @@ export function createCalendarRouter(cacheDirectory: string) {
       // Network error or Graph API error
       if (error.code === "ENOTFOUND" || error.code === "ETIMEDOUT") {
         return res.status(503).json({
-          error: "Cannot reach Microsoft Graph API. Check internet connection."
+          error: "Cannot reach Microsoft Graph API. Check internet connection.",
         });
       }
 
       res.status(500).json({
         error: "Failed to fetch calendar events",
-        details: error.message
+        details: error.message,
       });
     }
   });
@@ -785,7 +829,7 @@ export async function getToken(): Promise<string> {
 
 export async function getCalendarEvents(
   date: Date,
-  timeZone = "UTC"
+  timeZone = "UTC",
 ): Promise<Array<CalendarEvent>> {
   const token = await getToken();
 
@@ -795,7 +839,7 @@ export async function getCalendarEvents(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {

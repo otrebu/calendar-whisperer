@@ -39,3 +39,17 @@ export const authResultSchema = z.object({
 });
 
 export type AuthResult = z.infer<typeof authResultSchema>;
+
+// Authentication record for persisting identity across sessions
+// Contains no sensitive data, can be stored unencrypted
+export const authenticationRecordSchema = z.object({
+  authority: z.string(),
+  clientId: z.string(),
+  homeAccountId: z.string(),
+  tenantId: z.string(),
+  username: z.string(),
+});
+
+export type AuthenticationRecordData = z.infer<
+  typeof authenticationRecordSchema
+>;

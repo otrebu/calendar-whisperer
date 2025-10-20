@@ -1,11 +1,12 @@
 import {
+  authenticateWithDeviceCode,
   createDeviceCodeCredential,
   createGraphClient,
   fetchEventsForDate,
   getAccessToken,
-  loadCachedAuthResult,
+  loadAuthenticationRecord,
   loadConfig,
-  storeAuthResult,
+  storeAuthenticationRecord,
 } from "@calendar-whisperer/core";
 import { Command } from "@commander-js/extra-typings";
 import { parseISO } from "date-fns";
@@ -33,12 +34,16 @@ const eventsCommand = new Command("events")
         process.exit(1);
       }
 
-      const cachedAuth = await loadCachedAuthResult(config.cacheDirectory);
+      // Try to load cached authentication record
+      const cachedAuthRecord = await loadAuthenticationRecord(
+        config.cacheDirectory,
+      );
       let accessToken = "";
 
-      if (cachedAuth === null) {
+      if (cachedAuthRecord === null) {
+        // No cached auth record - need to authenticate with device code
         console.log(
-          "No valid cached token found. Starting authentication...\n",
+          "No valid cached authentication found. Starting authentication...\n",
         );
 
         const credential = createDeviceCodeCredential(
@@ -52,23 +57,80 @@ const eventsCommand = new Command("events")
         spinner.start();
 
         try {
-          const { accessToken: token } = await getAccessToken(
-            credential,
-            config.graphScopes,
-          );
+          // Authenticate and get the authentication record
+          const authRecord =
+            await authenticateWithDeviceCode(credential, config.graphScopes);
+
+          if (authRecord === undefined) {
+            throw new Error("Authentication failed to return a record");
+          }
+
+          // Store authentication record for future use
+          await storeAuthenticationRecord(authRecord, config.cacheDirectory);
+
+          // Get access token
+          const authResult = await getAccessToken(credential, config.graphScopes);
+          const { accessToken: token } = authResult;
           accessToken = token;
 
-          const authResult = { accessToken, expiresOnTimestamp: 0 };
-          await storeAuthResult(authResult, config.cacheDirectory);
           spinner.succeed("Authentication successful!");
         } catch (error) {
           spinner.fail("Authentication failed");
           throw error;
         }
       } else {
+        // Have cached auth record - try silent authentication
         console.log("Using cached authentication...");
-        const { accessToken: token } = cachedAuth;
-        accessToken = token;
+
+        const credential = createDeviceCodeCredential(
+          config,
+          (deviceCodeInfo) => {
+            showDeviceCode(deviceCodeInfo);
+          },
+          cachedAuthRecord,
+        );
+
+        try {
+          const authResult = await getAccessToken(credential, config.graphScopes);
+          const { accessToken: token } = authResult;
+          accessToken = token;
+        } catch {
+          // Silent auth failed - may need to re-authenticate
+          console.log(
+            "\nCached authentication expired. Re-authenticating...\n",
+          );
+
+          const newCredential = createDeviceCodeCredential(
+            config,
+            (deviceCodeInfo) => {
+              showDeviceCode(deviceCodeInfo);
+            },
+          );
+
+          const spinner = createSpinner("Waiting for authentication...");
+          spinner.start();
+
+          const authRecord = await authenticateWithDeviceCode(
+            newCredential,
+            config.graphScopes,
+          );
+
+          if (authRecord === undefined) {
+            spinner.fail("Authentication failed");
+            throw new Error("Authentication failed to return a record");
+          }
+
+          await storeAuthenticationRecord(authRecord, config.cacheDirectory);
+
+          const authResult = await getAccessToken(
+            newCredential,
+            config.graphScopes,
+          );
+          const { accessToken: token } = authResult;
+          accessToken = token;
+
+          spinner.succeed("Authentication successful!");
+        }
       }
 
       const spinner = createSpinner("Fetching calendar events...");

@@ -1,11 +1,12 @@
 // Authentication
 export {
+  authenticateWithDeviceCode,
   clearAuthCache,
   createDeviceCodeCredential,
   type DeviceCodeCallback,
   getAccessToken,
-  loadCachedAuthResult,
-  storeAuthResult,
+  loadAuthenticationRecord,
+  storeAuthenticationRecord,
 } from "./auth.js";
 
 // Configuration

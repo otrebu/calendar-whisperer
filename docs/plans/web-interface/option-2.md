@@ -118,12 +118,14 @@ export function createAuthRouter(cacheDirectory: string) {
 ### 3. Deployment Model
 
 **Local Only (Initial):**
+
 - Server runs on localhost (default port: 3001)
 - Web UI served from localhost (dev: 3000, prod: bundled with server)
 - Only accessible from user's machine
 - CORS configured for localhost only
 
 **Optional Cloud Deployment (Future):**
+
 - Deploy server to cloud (Railway, Fly.io)
 - Web UI served by server
 - Requires adding authentication layer
@@ -187,6 +189,7 @@ export const webCommand = new Command("web")
 **Server Lifecycle:** XState (for managing server start/stop/error states)
 
 **Why XState for Server Lifecycle?**
+
 - Starting server is a complex async flow with multiple states
 - Error recovery (port in use, authentication failure)
 - User feedback during state transitions
@@ -253,7 +256,10 @@ export const serverMachine = setup({
       invoke: {
         src: "stopServer",
         onDone: [
-          { target: "starting", guard: ({ event }) => event.type === "RESTART" },
+          {
+            target: "starting",
+            guard: ({ event }) => event.type === "RESTART",
+          },
           { target: "idle" },
         ],
       },
@@ -274,6 +280,7 @@ export const serverMachine = setup({
 ### Phase 1: Server Package (5 days)
 
 **Day 1-2: Server Setup**
+
 - [ ] Create `packages/server/` directory
 - [ ] Initialize package.json with dependencies (Express, CORS)
 - [ ] Setup tsconfig.json
@@ -283,6 +290,7 @@ export const serverMachine = setup({
 - [ ] Test server starts and responds
 
 **Day 3-4: Authentication API**
+
 - [ ] Create auth router
 - [ ] Implement token endpoint (reads from CLI cache)
 - [ ] Add token validation
@@ -290,6 +298,7 @@ export const serverMachine = setup({
 - [ ] Add error handling (no token, expired token)
 
 **Day 5: Calendar API**
+
 - [ ] Create calendar router
 - [ ] Implement events endpoint (uses core package)
 - [ ] Add request validation
@@ -297,6 +306,7 @@ export const serverMachine = setup({
 - [ ] Add error handling
 
 **Deliverables:**
+
 - ✅ Working local server
 - ✅ Auth and calendar APIs functional
 - ✅ Integration with core package
@@ -304,6 +314,7 @@ export const serverMachine = setup({
 ### Phase 2: CLI Integration (4 days)
 
 **Day 6-7: Web Command**
+
 - [ ] Add 'web' command to CLI
 - [ ] Implement server process spawning
 - [ ] Add port configuration
@@ -312,6 +323,7 @@ export const serverMachine = setup({
 - [ ] Handle process signals (SIGINT, SIGTERM)
 
 **Day 8: Server Lifecycle Management**
+
 - [ ] Create server state machine (XState)
 - [ ] Implement state transitions
 - [ ] Add error recovery
@@ -319,6 +331,7 @@ export const serverMachine = setup({
 - [ ] Test edge cases (port in use, authentication failure)
 
 **Day 9: Testing**
+
 - [ ] Write tests for web command
 - [ ] Test server lifecycle
 - [ ] Test authentication flow
@@ -326,6 +339,7 @@ export const serverMachine = setup({
 - [ ] Manual end-to-end testing
 
 **Deliverables:**
+
 - ✅ CLI web command functional
 - ✅ Server lifecycle managed
 - ✅ Robust error handling
@@ -333,6 +347,7 @@ export const serverMachine = setup({
 ### Phase 3: Web Frontend (5 days)
 
 **Day 10-11: Web Package Setup**
+
 - [ ] Create `packages/web/` directory
 - [ ] Initialize package.json
 - [ ] Setup Vite configuration
@@ -342,6 +357,7 @@ export const serverMachine = setup({
 - [ ] Test API connectivity
 
 **Day 12-13: UI Components**
+
 - [ ] Create Calendar component
 - [ ] Create EventList component
 - [ ] Create Header component
@@ -350,12 +366,14 @@ export const serverMachine = setup({
 - [ ] Style with Tailwind
 
 **Day 14: Integration**
+
 - [ ] Integrate all components
 - [ ] Test full flow (CLI → server → web)
 - [ ] Fix bugs
 - [ ] Polish UX
 
 **Deliverables:**
+
 - ✅ Functional web UI
 - ✅ Connected to local server
 - ✅ End-to-end flow working
@@ -363,6 +381,7 @@ export const serverMachine = setup({
 ### Phase 4: Testing and Documentation (3 days)
 
 **Day 15: Testing**
+
 - [ ] Server tests
 - [ ] CLI command tests
 - [ ] Frontend component tests
@@ -370,6 +389,7 @@ export const serverMachine = setup({
 - [ ] Manual testing
 
 **Day 16-17: Documentation**
+
 - [ ] Update README with web command
 - [ ] Document server API
 - [ ] Add troubleshooting guide
@@ -377,6 +397,7 @@ export const serverMachine = setup({
 - [ ] Document token sharing mechanism
 
 **Deliverables:**
+
 - ✅ Comprehensive tests
 - ✅ Complete documentation
 - ✅ Ready for use
@@ -413,21 +434,25 @@ export const serverMachine = setup({
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** Small team or solo developer
 - **Skill Level:** Comfortable with backend + frontend
 - **Experience:** Familiar with Express, process management
 
 ### Timeline Constraints
+
 - **Urgency:** Can wait 3-4 weeks for initial version
 - **Iteration:** Prefer complete local solution before cloud
 
 ### User Requirements
+
 - **Privacy:** Data privacy is critical concern
 - **Access Pattern:** Users primarily work from single machine
 - **Authentication:** Want seamless auth between CLI and web
 - **Offline:** Need to work without internet connection
 
 ### Technical Context
+
 - **Infrastructure:** Want to avoid cloud dependencies initially
 - **Control:** Want full control over where code runs
 - **Flexibility:** May add cloud deployment later
@@ -549,35 +574,45 @@ export const serverMachine = setup({
 ## Risk Mitigation
 
 ### Risk: Port Conflicts
+
 **Mitigation:**
+
 - Dynamic port selection if default in use
 - Allow user to specify port via flag
 - Clear error message with instructions
 - Document port requirements
 
 ### Risk: Server Process Management
+
 **Mitigation:**
+
 - Use XState for robust state management
 - Handle all process signals gracefully
 - Auto-restart on crash
 - Comprehensive error logging
 
 ### Risk: CORS Issues
+
 **Mitigation:**
+
 - Proper CORS configuration for localhost
 - Development mode allows all local origins
 - Document CORS troubleshooting
 - Test with multiple browsers
 
 ### Risk: Token Security
+
 **Mitigation:**
+
 - Tokens only served over localhost
 - No token persistence in web storage
 - Token validation before use
 - Document security model
 
 ### Risk: User Confusion
+
 **Mitigation:**
+
 - Clear CLI output during server start
 - Browser opens automatically
 - Visual feedback for all states
@@ -588,6 +623,7 @@ export const serverMachine = setup({
 ## Success Metrics
 
 ### Technical Metrics
+
 - ✅ Server starts in < 3 seconds
 - ✅ Web connects to server in < 1 second
 - ✅ API response time < 100ms
@@ -595,12 +631,14 @@ export const serverMachine = setup({
 - ✅ Zero memory leaks
 
 ### User Experience Metrics
+
 - ✅ One command to launch (`calendar-whisperer web`)
 - ✅ Browser opens automatically
 - ✅ No re-authentication needed
 - ✅ Graceful error handling
 
 ### Reliability Metrics
+
 - ✅ Server uptime > 99%
 - ✅ Automatic recovery from crashes
 - ✅ No port conflicts
@@ -672,7 +710,7 @@ export async function getToken(): Promise<string> {
 
 export async function getCalendarEvents(
   date: Date,
-  timeZone = "UTC"
+  timeZone = "UTC",
 ): Promise<Array<CalendarEvent>> {
   const token = await getToken();
 
@@ -682,7 +720,7 @@ export async function getCalendarEvents(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {

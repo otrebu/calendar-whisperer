@@ -199,6 +199,7 @@ function CloudAuthProviderInner({ children }: { children: ReactNode }) {
 **Dual Deployment Strategy**
 
 **Cloud Deployment (Vercel):**
+
 ```bash
 # .env.cloud
 VITE_DEPLOYMENT_MODE=cloud
@@ -214,6 +215,7 @@ vercel deploy --prod
 ```
 
 **Local Deployment (CLI):**
+
 ```bash
 # .env.local
 VITE_DEPLOYMENT_MODE=local
@@ -315,6 +317,7 @@ export const deploymentMachine = setup({
 ```
 
 **TanStack Query for Data Fetching**
+
 - Environment-aware API base URL
 - Same hooks work in both modes
 - Automatic retry and caching
@@ -326,6 +329,7 @@ export const deploymentMachine = setup({
 ### Phase 1: Server Package with Provider Pattern (5 days)
 
 **Day 1-2: Server Foundation**
+
 - [ ] Create server package
 - [ ] Setup Express with TypeScript
 - [ ] Create auth provider interface
@@ -334,6 +338,7 @@ export const deploymentMachine = setup({
 - [ ] Add environment detection
 
 **Day 3-4: API Routes**
+
 - [ ] Create calendar router
 - [ ] Environment-aware token handling
 - [ ] Integrate core package
@@ -341,12 +346,14 @@ export const deploymentMachine = setup({
 - [ ] Add error handling
 
 **Day 5: Testing**
+
 - [ ] Unit tests for providers
 - [ ] Integration tests
 - [ ] Test mode switching
 - [ ] Document server configuration
 
 **Deliverables:**
+
 - ✅ Server works in both modes
 - ✅ Auth providers functional
 - ✅ API routes tested
@@ -354,6 +361,7 @@ export const deploymentMachine = setup({
 ### Phase 2: Web Package with Unified Interface (5 days)
 
 **Day 6-7: Provider Abstraction**
+
 - [ ] Create auth provider interface
 - [ ] Implement local auth provider (React)
 - [ ] Implement cloud auth provider (MSAL)
@@ -361,18 +369,21 @@ export const deploymentMachine = setup({
 - [ ] Test provider switching
 
 **Day 8-9: UI Components**
+
 - [ ] Create environment-agnostic components
 - [ ] Add deployment mode indicator
 - [ ] Build calendar UI
 - [ ] Test in both modes
 
 **Day 10: Integration**
+
 - [ ] Wire up providers to components
 - [ ] Test full flow in local mode
 - [ ] Test full flow in cloud mode
 - [ ] Fix mode-specific issues
 
 **Deliverables:**
+
 - ✅ Universal web package
 - ✅ Works in both deployment modes
 - ✅ Seamless switching
@@ -380,6 +391,7 @@ export const deploymentMachine = setup({
 ### Phase 3: CLI Integration (4 days)
 
 **Day 11-12: Web Command**
+
 - [ ] Add web command to CLI
 - [ ] Start server process
 - [ ] Start web dev server OR serve built web
@@ -387,18 +399,21 @@ export const deploymentMachine = setup({
 - [ ] Browser auto-open
 
 **Day 13: XState Integration**
+
 - [ ] Create deployment state machine
 - [ ] Integrate with CLI command
 - [ ] Add user feedback
 - [ ] Test state transitions
 
 **Day 14: Testing**
+
 - [ ] Test CLI web command
 - [ ] Test local mode end-to-end
 - [ ] Test error scenarios
 - [ ] Performance testing
 
 **Deliverables:**
+
 - ✅ CLI launches local web UI
 - ✅ Robust lifecycle management
 - ✅ Error handling
@@ -406,24 +421,28 @@ export const deploymentMachine = setup({
 ### Phase 4: Cloud Deployment (3 days)
 
 **Day 15: Cloud Configuration**
+
 - [ ] Configure cloud environment variables
 - [ ] Setup Azure redirect URIs for cloud domain
 - [ ] Test MSAL in cloud environment
 - [ ] Configure API URL
 
 **Day 16: Deployment**
+
 - [ ] Build for cloud
 - [ ] Deploy server to Railway/Fly.io
 - [ ] Deploy web to Vercel
 - [ ] Test production deployment
 
 **Day 17: Cross-Mode Testing**
+
 - [ ] Test local mode
 - [ ] Test cloud mode
 - [ ] Test switching between modes
 - [ ] Fix deployment-specific issues
 
 **Deliverables:**
+
 - ✅ Cloud deployment functional
 - ✅ Both modes working
 - ✅ Production-ready
@@ -431,6 +450,7 @@ export const deploymentMachine = setup({
 ### Phase 5: Documentation and Polish (3 days)
 
 **Day 18-19: Documentation**
+
 - [ ] Document local mode setup
 - [ ] Document cloud mode setup
 - [ ] Add deployment guide for both modes
@@ -438,12 +458,14 @@ export const deploymentMachine = setup({
 - [ ] Document provider pattern
 
 **Day 20: Final Testing**
+
 - [ ] End-to-end testing both modes
 - [ ] User acceptance testing
 - [ ] Performance testing
 - [ ] Security review
 
 **Deliverables:**
+
 - ✅ Comprehensive documentation
 - ✅ Both modes production-ready
 - ✅ User guides complete
@@ -477,21 +499,25 @@ export const deploymentMachine = setup({
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** 2-3 developers
 - **Skill Level:** Advanced - comfortable with abstraction patterns
 - **Experience:** Familiar with multi-environment deployments
 
 ### Timeline Constraints
+
 - **Urgency:** Can wait 5-7 weeks for dual-mode solution
 - **Iteration:** Building for long-term flexibility
 
 ### User Requirements
+
 - **Choice:** Users want to choose deployment mode
 - **Privacy:** Some users need local-only
 - **Convenience:** Some users prefer cloud access
 - **Migration:** Gradual migration from CLI to web
 
 ### Technical Context
+
 - **Infrastructure:** Can support both cloud and local
 - **Maintenance:** Can maintain dual deployment
 - **Flexibility:** Want maximum deployment options
@@ -551,6 +577,7 @@ export const deploymentMachine = setup({
 ## Dependencies
 
 ### Server Package
+
 ```json
 {
   "dependencies": {
@@ -564,6 +591,7 @@ export const deploymentMachine = setup({
 ```
 
 ### Web Package
+
 ```json
 {
   "dependencies": {
@@ -580,6 +608,7 @@ export const deploymentMachine = setup({
 ```
 
 ### CLI Package (Additions)
+
 ```json
 {
   "dependencies": {
@@ -596,28 +625,36 @@ export const deploymentMachine = setup({
 ## Risk Mitigation
 
 ### Risk: Mode Confusion
+
 **Mitigation:**
+
 - Clear visual indicator of current mode
 - Documentation explaining differences
 - Onboarding flow explains modes
 - Default to most appropriate mode
 
 ### Risk: Abstraction Leaks
+
 **Mitigation:**
+
 - Well-defined provider interfaces
 - Comprehensive testing of both modes
 - Careful API design
 - Code reviews focus on abstraction quality
 
 ### Risk: Dual Maintenance
+
 **Mitigation:**
+
 - Shared codebase minimizes duplication
 - Automated tests for both modes
 - CI/CD tests both deployments
 - Monitoring for both environments
 
 ### Risk: Testing Complexity
+
 **Mitigation:**
+
 - Test matrix covers both modes
 - E2E tests for both deployments
 - Automated deployment testing
@@ -628,16 +665,19 @@ export const deploymentMachine = setup({
 ## Success Metrics
 
 ### Adoption Metrics
+
 - ✅ 50% users choose cloud mode
 - ✅ 50% users choose local mode
 - ✅ Mode satisfaction rating > 8/10
 
 ### Technical Metrics
+
 - ✅ Both modes pass all tests
 - ✅ Mode switching works 100%
 - ✅ No mode-specific critical bugs
 
 ### Maintenance Metrics
+
 - ✅ Bug fix applies to both modes
 - ✅ Feature parity maintained
 - ✅ Documentation kept in sync

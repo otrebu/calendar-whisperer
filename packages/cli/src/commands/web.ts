@@ -1,4 +1,7 @@
-import { loadCachedAuthResult, loadConfig } from "@calendar-whisperer/core";
+import {
+  loadAuthenticationRecord,
+  loadConfig,
+} from "@calendar-whisperer/core";
 import { Command } from "@commander-js/extra-typings";
 import chalk from "chalk";
 import open from "open";
@@ -16,11 +19,13 @@ export const webCommand = new Command("web")
       const config = loadConfig();
       const port = Number.parseInt(options.port, 10);
 
-      // Check for cached auth
+      // Check for cached authentication record
       console.log("Checking authentication...");
-      const cachedAuth = await loadCachedAuthResult(config.cacheDirectory);
+      const cachedAuthRecord = await loadAuthenticationRecord(
+        config.cacheDirectory,
+      );
 
-      if (!cachedAuth) {
+      if (!cachedAuthRecord) {
         console.error(
           chalk.red(
             "\n✖ Not authenticated. Run this command first to authenticate:",

@@ -128,18 +128,21 @@ async function handleAuthRequest(request: Request) {
 **Cloud PWA with Offline Capabilities**
 
 **Initial Deployment:**
+
 - Deploy to Vercel/Netlify as standard web app
 - Service Worker registered for offline support
 - Manifest.json for installability
 - HTTPS required (for Service Workers)
 
 **Offline Strategy:**
+
 - **Cache-First:** Static assets (HTML, CSS, JS)
 - **Network-First with Cache Fallback:** Calendar data
 - **Background Sync:** Update cached data when online
 - **IndexedDB:** Store events, user preferences
 
 **Installation Flow:**
+
 1. User visits web app (PWA-ready)
 2. Browser shows "Install" prompt (after engagement heuristics)
 3. User clicks "Install"
@@ -151,6 +154,7 @@ async function handleAuthRequest(request: Request) {
 **Complex State Requires XState**
 
 PWAs have inherently complex state:
+
 - Online/offline status
 - Data syncing (pending, syncing, synced, error)
 - Service Worker lifecycle (installing, waiting, active)
@@ -231,6 +235,7 @@ export const syncMachine = setup({
 ```
 
 **Data Management:**
+
 - **TanStack Query** with persistence plugin
 - **IndexedDB** via `idb` library for structured storage
 - **XState** for sync orchestration
@@ -242,6 +247,7 @@ export const syncMachine = setup({
 ### Phase 1: PWA Foundation (5 days)
 
 **Day 1-2: Vite PWA Plugin Setup**
+
 - [ ] Install vite-plugin-pwa
 - [ ] Configure plugin with offline strategy
 - [ ] Create manifest.json (name, icons, theme)
@@ -250,6 +256,7 @@ export const syncMachine = setup({
 - [ ] Test on Chrome, Safari, Firefox
 
 **Day 3-4: Service Worker Implementation**
+
 - [ ] Create service worker with Workbox
 - [ ] Implement cache-first strategy for static assets
 - [ ] Implement network-first for API calls
@@ -258,6 +265,7 @@ export const syncMachine = setup({
 - [ ] Test cache invalidation
 
 **Day 5: Manifest and Install Prompt**
+
 - [ ] Fine-tune manifest.json (display, orientation)
 - [ ] Create InstallPrompt component
 - [ ] Handle beforeinstallprompt event
@@ -265,6 +273,7 @@ export const syncMachine = setup({
 - [ ] Add uninstall instructions to docs
 
 **Deliverables:**
+
 - ✅ Installable PWA
 - ✅ Offline-capable static assets
 - ✅ Service Worker active
@@ -272,6 +281,7 @@ export const syncMachine = setup({
 ### Phase 2: IndexedDB and Data Persistence (5 days)
 
 **Day 6-7: IndexedDB Schema**
+
 - [ ] Install idb library
 - [ ] Design database schema (events, sync_status, preferences)
 - [ ] Create DB wrapper functions (CRUD operations)
@@ -280,6 +290,7 @@ export const syncMachine = setup({
 - [ ] Test data persistence across sessions
 
 **Day 8-9: Offline Data Access**
+
 - [ ] Implement read from IndexedDB
 - [ ] Implement write to IndexedDB
 - [ ] Add query/filter functions
@@ -288,6 +299,7 @@ export const syncMachine = setup({
 - [ ] Test stale data handling
 
 **Day 10: Data Sync Logic**
+
 - [ ] Create sync manager
 - [ ] Implement fetch-and-store flow
 - [ ] Add conflict resolution (last-write-wins)
@@ -295,6 +307,7 @@ export const syncMachine = setup({
 - [ ] Add sync status UI
 
 **Deliverables:**
+
 - ✅ IndexedDB storage working
 - ✅ Offline data access functional
 - ✅ Basic sync implemented
@@ -302,6 +315,7 @@ export const syncMachine = setup({
 ### Phase 3: Background Sync and XState (6 days)
 
 **Day 11-12: Background Sync API**
+
 - [ ] Implement Background Sync registration
 - [ ] Create sync event handler in Service Worker
 - [ ] Test periodic background sync
@@ -309,6 +323,7 @@ export const syncMachine = setup({
 - [ ] Test sync on reconnection
 
 **Day 13-14: XState Integration**
+
 - [ ] Create sync state machine
 - [ ] Create offline/online state machine
 - [ ] Integrate machines with React
@@ -316,6 +331,7 @@ export const syncMachine = setup({
 - [ ] Test state transitions
 
 **Day 15-16: Advanced Sync Features**
+
 - [ ] Implement optimistic updates
 - [ ] Add retry logic with exponential backoff
 - [ ] Handle auth token expiry during offline
@@ -323,6 +339,7 @@ export const syncMachine = setup({
 - [ ] Test complex sync scenarios
 
 **Deliverables:**
+
 - ✅ Background Sync working
 - ✅ XState managing complex states
 - ✅ Robust offline/online handling
@@ -330,6 +347,7 @@ export const syncMachine = setup({
 ### Phase 4: UI and UX Polish (5 days)
 
 **Day 17-18: Offline-Aware UI**
+
 - [ ] Create OfflineIndicator component
 - [ ] Show sync status in header
 - [ ] Visual indication for cached vs fresh data
@@ -337,6 +355,7 @@ export const syncMachine = setup({
 - [ ] Style offline states
 
 **Day 19-20: PWA-Specific Features**
+
 - [ ] Add app shortcuts (manifest shortcuts)
 - [ ] Implement share target (receive calendar events)
 - [ ] Add push notifications setup (optional)
@@ -344,6 +363,7 @@ export const syncMachine = setup({
 - [ ] Polish standalone window experience
 
 **Day 21: Testing and Bug Fixes**
+
 - [ ] Test full offline flow
 - [ ] Test background sync on mobile
 - [ ] Test installation on multiple devices
@@ -351,6 +371,7 @@ export const syncMachine = setup({
 - [ ] Performance testing
 
 **Deliverables:**
+
 - ✅ Polished PWA experience
 - ✅ Offline-first UX
 - ✅ Cross-device testing complete
@@ -358,6 +379,7 @@ export const syncMachine = setup({
 ### Phase 5: Testing and Documentation (5 days)
 
 **Day 22-23: Comprehensive Testing**
+
 - [ ] Unit tests for sync logic
 - [ ] Integration tests for offline scenarios
 - [ ] E2E tests with Playwright
@@ -366,6 +388,7 @@ export const syncMachine = setup({
 - [ ] Test uninstallation
 
 **Day 24-25: Documentation**
+
 - [ ] PWA installation guide
 - [ ] Offline capabilities documentation
 - [ ] Troubleshooting guide
@@ -373,6 +396,7 @@ export const syncMachine = setup({
 - [ ] Update README
 
 **Day 26: Deployment and Launch**
+
 - [ ] Deploy to production
 - [ ] Test production PWA
 - [ ] Monitor Service Worker registration
@@ -380,6 +404,7 @@ export const syncMachine = setup({
 - [ ] Gather user feedback
 
 **Deliverables:**
+
 - ✅ Production PWA deployed
 - ✅ Comprehensive documentation
 - ✅ Monitoring in place
@@ -417,21 +442,25 @@ export const syncMachine = setup({
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** 2-3 developers minimum
 - **Skill Level:** Advanced - experience with PWAs, Service Workers
 - **Experience:** Familiarity with IndexedDB, offline-first patterns
 
 ### Timeline Constraints
+
 - **Urgency:** Can wait 6-8 weeks for full PWA
 - **Iteration:** Building for long-term, not quick MVP
 
 ### User Requirements
+
 - **Offline Access:** Critical requirement
 - **Mobile-First:** Primary usage on mobile devices
 - **App-Like Experience:** Want native app feel
 - **Reliability:** Need to work in poor network conditions
 
 ### Technical Context
+
 - **Infrastructure:** Comfortable with advanced web features
 - **Maintenance:** Can dedicate time to PWA maintenance
 - **Support:** Can support users across various browsers
@@ -534,6 +563,7 @@ export const syncMachine = setup({
 **Total Dependencies:** 14 production + 9 development = 23 total
 
 **Key Dependencies:**
+
 - **vite-plugin-pwa:** PWA support for Vite
 - **workbox-\*:** Google's Service Worker libraries
 - **idb:** IndexedDB wrapper with Promises
@@ -545,35 +575,45 @@ export const syncMachine = setup({
 ## Risk Mitigation
 
 ### Risk: Service Worker Complexity
+
 **Mitigation:**
+
 - Use Workbox for battle-tested patterns
 - Comprehensive testing of offline scenarios
 - Detailed logging and monitoring
 - Progressive rollout of Service Worker features
 
 ### Risk: IndexedDB Storage Limits
+
 **Mitigation:**
+
 - Monitor storage usage
 - Implement data cleanup policies
 - Request persistent storage permission
 - Graceful degradation if quota exceeded
 
 ### Risk: iOS Safari PWA Limitations
+
 **Mitigation:**
+
 - Test extensively on iOS
 - Document limitations clearly
 - Provide fallbacks for missing features
 - Progressive enhancement approach
 
 ### Risk: Sync Conflicts
+
 **Mitigation:**
+
 - Use last-write-wins strategy initially
 - Clear UI for conflict resolution
 - Comprehensive testing of edge cases
 - Detailed logging of sync operations
 
 ### Risk: Service Worker Updates
+
 **Mitigation:**
+
 - Implement skip waiting strategy
 - Prompt user to reload on update
 - Test update scenarios thoroughly
@@ -584,17 +624,20 @@ export const syncMachine = setup({
 ## Success Metrics
 
 ### PWA Metrics
+
 - ✅ Installability rate > 30%
 - ✅ Return visitor rate > 60%
 - ✅ Offline usage > 20% of sessions
 - ✅ Lighthouse PWA score > 90
 
 ### Performance Metrics
+
 - ✅ Time to Interactive < 2 seconds
 - ✅ Cache hit rate > 80%
 - ✅ Sync success rate > 95%
 
 ### User Experience Metrics
+
 - ✅ Offline sessions complete successfully > 90%
 - ✅ User retention rate > 70%
 - ✅ Positive feedback on offline features
@@ -676,9 +719,7 @@ export async function getDB(): Promise<IDBPDatabase> {
   });
 }
 
-export async function storeEvents(
-  events: Array<CalendarEvent>
-): Promise<void> {
+export async function storeEvents(events: Array<CalendarEvent>): Promise<void> {
   const db = await getDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
@@ -688,15 +729,15 @@ export async function storeEvents(
       store.put({
         ...event,
         syncTime: new Date().toISOString(),
-      })
-    )
+      }),
+    ),
   );
 
   await tx.done;
 }
 
 export async function getEventsByDate(
-  date: Date
+  date: Date,
 ): Promise<Array<CalendarEvent>> {
   const db = await getDB();
   const dateKey = date.toISOString().split("T")[0]; // YYYY-MM-DD

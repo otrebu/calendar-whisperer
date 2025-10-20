@@ -11,6 +11,7 @@ This document analyzes 5 distinct approaches for implementing a web interface to
 **Input Source:** Comprehensive architecture report at `docs/reports/adding-web-interface-to-cli-monorepo.md`
 
 **Key Context from Report:**
+
 - Existing monorepo with `@calendar-whisperer/core` (shared logic) and `@calendar-whisperer/cli` packages
 - Core provides: Graph API client, types, schemas, and device code authentication
 - CLI uses Azure device code flow with filesystem token caching
@@ -20,13 +21,13 @@ This document analyzes 5 distinct approaches for implementing a web interface to
 
 ## Comparison Matrix
 
-| Approach | Architecture | Auth Flow | Deployment | Complexity | Time to MVP | Best For |
-|----------|-------------|-----------|------------|------------|-------------|----------|
-| **Option 1: Cloud SPA** | Pure client-side | MSAL browser (PKCE) | Vercel/Netlify | Low | 2-3 weeks | Quick launch, standard web app |
-| **Option 2: Local Web Server** | CLI launches server | Hybrid (device + PKCE) | Local only | Medium | 3-4 weeks | Privacy-first, Prisma Studio style |
-| **Option 3: Progressive Web App** | Offline-first PWA | MSAL + Service Workers | Cloud + offline | High | 6-8 weeks | Enterprise users, offline needs |
-| **Option 4: Hybrid Cloud + Local** | Dual deployment | Unified auth | Both cloud & local | High | 5-7 weeks | Flexibility, future-proof |
-| **Option 5: Minimal MVP** | React hooks only | MSAL browser (PKCE) | Cloud static | Minimal | 1-2 weeks | Fastest validation |
+| Approach                           | Architecture        | Auth Flow              | Deployment         | Complexity | Time to MVP | Best For                           |
+| ---------------------------------- | ------------------- | ---------------------- | ------------------ | ---------- | ----------- | ---------------------------------- |
+| **Option 1: Cloud SPA**            | Pure client-side    | MSAL browser (PKCE)    | Vercel/Netlify     | Low        | 2-3 weeks   | Quick launch, standard web app     |
+| **Option 2: Local Web Server**     | CLI launches server | Hybrid (device + PKCE) | Local only         | Medium     | 3-4 weeks   | Privacy-first, Prisma Studio style |
+| **Option 3: Progressive Web App**  | Offline-first PWA   | MSAL + Service Workers | Cloud + offline    | High       | 6-8 weeks   | Enterprise users, offline needs    |
+| **Option 4: Hybrid Cloud + Local** | Dual deployment     | Unified auth           | Both cloud & local | High       | 5-7 weeks   | Flexibility, future-proof          |
+| **Option 5: Minimal MVP**          | React hooks only    | MSAL browser (PKCE)    | Cloud static       | Minimal    | 1-2 weeks   | Fastest validation                 |
 
 ---
 
@@ -35,30 +36,35 @@ This document analyzes 5 distinct approaches for implementing a web interface to
 ### 1. Architecture Patterns
 
 **Option 1 (Cloud SPA):**
+
 - Standard React SPA with Vite
 - Pure client-side rendering
 - No backend required initially
 - State management: TanStack Query + React hooks
 
 **Option 2 (Local Web Server):**
+
 - Express/Fastify server in new `packages/server` package
 - CLI command: `calendar-whisperer web` launches server
 - React frontend communicates with local API
 - Token sharing between CLI and web via server
 
 **Option 3 (Progressive Web App):**
+
 - Service Workers for offline functionality
 - IndexedDB for event caching
 - Background sync for updates
 - App-like installation on devices
 
 **Option 4 (Hybrid):**
+
 - Cloud deployment for public access
 - Local mode via CLI command
 - Shared web package for both modes
 - Backend API layer for cloud deployment
 
 **Option 5 (Minimal MVP):**
+
 - No state management library initially
 - React hooks + context only
 - Single-page view (no routing)
@@ -69,6 +75,7 @@ This document analyzes 5 distinct approaches for implementing a web interface to
 ### 2. Authentication Strategy
 
 **Option 1 (Cloud SPA):**
+
 ```typescript
 // Pure MSAL browser with PKCE
 import { PublicClientApplication } from "@azure/msal-browser";
@@ -86,6 +93,7 @@ const msalConfig = {
 ```
 
 **Option 2 (Local Web Server):**
+
 ```typescript
 // Hybrid approach - CLI handles device code, server provides tokens to web
 // Server endpoint: GET /api/auth/token
@@ -94,6 +102,7 @@ const msalConfig = {
 ```
 
 **Option 3 (Progressive Web App):**
+
 ```typescript
 // MSAL with long-lived tokens in IndexedDB
 // Service Worker intercepts auth requests
@@ -102,16 +111,19 @@ cacheLocation: "localStorage", // For persistence across sessions
 ```
 
 **Option 4 (Hybrid Cloud + Local):**
+
 ```typescript
 // Environment detection
-const authStrategy = import.meta.env.VITE_DEPLOYMENT_MODE === "local"
-  ? new LocalAuthProvider()  // Uses CLI token
-  : new MsalAuthProvider();  // Uses PKCE flow
+const authStrategy =
+  import.meta.env.VITE_DEPLOYMENT_MODE === "local"
+    ? new LocalAuthProvider() // Uses CLI token
+    : new MsalAuthProvider(); // Uses PKCE flow
 
 // Unified auth interface for both modes
 ```
 
 **Option 5 (Minimal MVP):**
+
 ```typescript
 // Simplified MSAL setup with popup only (no redirect)
 // No silent token refresh initially
@@ -123,6 +135,7 @@ const authStrategy = import.meta.env.VITE_DEPLOYMENT_MODE === "local"
 ### 3. Package Structure
 
 **Option 1 (Cloud SPA):**
+
 ```
 packages/
 ├── core/          # Existing - shared logic
@@ -137,6 +150,7 @@ packages/
 ```
 
 **Option 2 (Local Web Server):**
+
 ```
 packages/
 ├── core/          # Existing
@@ -151,6 +165,7 @@ packages/
 ```
 
 **Option 3 (Progressive Web App):**
+
 ```
 packages/
 ├── core/          # Existing
@@ -168,6 +183,7 @@ packages/
 ```
 
 **Option 4 (Hybrid Cloud + Local):**
+
 ```
 packages/
 ├── core/          # Existing
@@ -183,6 +199,7 @@ packages/
 ```
 
 **Option 5 (Minimal MVP):**
+
 ```
 packages/
 ├── core/          # Existing - minimal changes
@@ -199,30 +216,35 @@ packages/
 ### 4. State Management Approaches
 
 **Option 1 (Cloud SPA):**
+
 - TanStack Query for server state (Graph API data)
 - React Context for auth state (MSAL provides)
 - React hooks for local UI state
 - No XState initially (add later if needed)
 
 **Option 2 (Local Web Server):**
+
 - TanStack Query for API calls to local server
 - XState for server lifecycle management (starting, stopping, errors)
 - React Context for shared state
 - Local server manages Graph API calls
 
 **Option 3 (Progressive Web App):**
+
 - XState for complex offline/online sync state machine
 - TanStack Query with persistence plugin
 - IndexedDB for offline data
 - Background Sync API for queue management
 
 **Option 4 (Hybrid Cloud + Local):**
+
 - XState for deployment mode switching
 - TanStack Query with environment-aware fetch
 - Provider pattern for auth abstraction
 - Shared state machine for both modes
 
 **Option 5 (Minimal MVP):**
+
 - React hooks only (useState, useEffect, useCallback)
 - No external state management library
 - Direct API calls in components
@@ -233,6 +255,7 @@ packages/
 ### 5. Development Phases
 
 **Option 1 (Cloud SPA):**
+
 1. Setup web package (Vite + React + Tailwind) - 2 days
 2. MSAL authentication integration - 3 days
 3. Integrate core package Graph client - 2 days
@@ -241,6 +264,7 @@ packages/
 6. Testing and polish - 2 days
 
 **Option 2 (Local Web Server):**
+
 1. Create server package (Express + auth) - 4 days
 2. Add 'web' command to CLI - 2 days
 3. Setup web package - 2 days
@@ -250,6 +274,7 @@ packages/
 7. Documentation - 1 day
 
 **Option 3 (Progressive Web App):**
+
 1. Setup web package with PWA support - 3 days
 2. Implement Service Workers - 5 days
 3. Setup IndexedDB wrapper - 4 days
@@ -261,6 +286,7 @@ packages/
 9. Deploy and test on devices - 3 days
 
 **Option 4 (Hybrid Cloud + Local):**
+
 1. Create server package - 4 days
 2. Setup web package with provider pattern - 3 days
 3. Implement local auth provider - 3 days
@@ -273,6 +299,7 @@ packages/
 10. Documentation for both modes - 2 days
 
 **Option 5 (Minimal MVP):**
+
 1. Setup web package (bare minimum) - 1 day
 2. MSAL popup auth only - 1 day
 3. Simple event list component - 2 days
@@ -285,32 +312,42 @@ packages/
 ## Risk Assessment
 
 ### Option 1 (Cloud SPA)
+
 **Low Risk**
+
 - Standard patterns, well-documented
 - Risk: MSAL configuration issues (mitigated: extensive docs)
 - Risk: Azure app registration redirect URIs (mitigated: clear setup guide)
 
 ### Option 2 (Local Web Server)
+
 **Medium Risk**
+
 - Risk: Port conflicts on user machines (mitigated: dynamic port selection)
 - Risk: CORS issues in local development (mitigated: server configuration)
 - Risk: CLI complexity managing server lifecycle (mitigated: robust process management)
 
 ### Option 3 (Progressive Web App)
+
 **High Risk**
+
 - Risk: Service Worker complexity and debugging (mitigated: extensive testing)
 - Risk: Browser compatibility issues (mitigated: progressive enhancement)
 - Risk: Offline sync conflicts (mitigated: last-write-wins strategy)
 - Risk: Increased development time (mitigated: phased approach)
 
 ### Option 4 (Hybrid Cloud + Local)
+
 **High Risk**
+
 - Risk: Maintaining two deployment modes (mitigated: shared code via providers)
 - Risk: Testing complexity (both modes x multiple browsers) (mitigated: automated testing)
 - Risk: User confusion about which mode to use (mitigated: clear documentation)
 
 ### Option 5 (Minimal MVP)
+
 **Very Low Risk**
+
 - Risk: Feature creep during development (mitigated: strict scope control)
 - Risk: Technical debt from shortcuts (mitigated: clear refactoring plan)
 - Risk: User expectations not met (mitigated: clear "MVP" messaging)
@@ -330,6 +367,7 @@ packages/
 ## Dependencies Comparison
 
 ### Option 1 (Cloud SPA)
+
 ```json
 {
   "dependencies": {
@@ -343,9 +381,11 @@ packages/
   }
 }
 ```
+
 **Total:** 7 core dependencies
 
 ### Option 2 (Local Web Server)
+
 ```json
 {
   "server": {
@@ -361,9 +401,11 @@ packages/
   }
 }
 ```
+
 **Total:** 10+ dependencies (two packages)
 
 ### Option 3 (Progressive Web App)
+
 ```json
 {
   "dependencies": {
@@ -381,12 +423,16 @@ packages/
   }
 }
 ```
+
 **Total:** 11+ dependencies
 
 ### Option 4 (Hybrid)
+
 ```json
 {
-  "server": { /* express, etc. */ },
+  "server": {
+    /* express, etc. */
+  },
   "web": {
     "@calendar-whisperer/core": "workspace:*",
     "@azure/msal-browser": "^3.30.0",
@@ -398,9 +444,11 @@ packages/
   }
 }
 ```
+
 **Total:** 15+ dependencies (multiple packages)
 
 ### Option 5 (Minimal MVP)
+
 ```json
 {
   "dependencies": {
@@ -412,6 +460,7 @@ packages/
   }
 }
 ```
+
 **Total:** 5 core dependencies only
 
 ---
@@ -419,30 +468,35 @@ packages/
 ## User Experience Comparison
 
 ### Option 1 (Cloud SPA)
+
 **Login:** Click button → Azure redirect → Redirect back → Logged in
 **Access:** Visit URL anytime from any device
 **Offline:** Not supported
 **UX Score:** 8/10 - Standard web UX, familiar flow
 
 ### Option 2 (Local Web Server)
+
 **Login:** CLI already authenticated OR popup auth
 **Access:** Run `calendar-whisperer web` → Browser opens
 **Offline:** Not supported (needs local server running)
 **UX Score:** 7/10 - Extra step to launch, but seamless once running
 
 ### Option 3 (Progressive Web App)
+
 **Login:** Click button → Azure redirect → Redirect back → Logged in
 **Access:** Visit URL OR install as app icon
 **Offline:** Full offline support with sync
 **UX Score:** 10/10 - Best UX with offline access and app installation
 
 ### Option 4 (Hybrid)
+
 **Login:** Depends on mode (CLI token OR Azure redirect)
 **Access:** Cloud URL OR `calendar-whisperer web` command
 **Offline:** Only in cloud mode with PWA features
 **UX Score:** 6/10 - Flexible but potentially confusing
 
 ### Option 5 (Minimal MVP)
+
 **Login:** Popup authentication (no redirect option initially)
 **Access:** Visit URL anytime
 **Offline:** Not supported
@@ -453,6 +507,7 @@ packages/
 ## Technical Alignment with User Preferences
 
 **User Coding Style:**
+
 - FP-first, minimal OOP
 - Explicit, verbose naming
 - Small, focused functions
@@ -460,26 +515,31 @@ packages/
 - Comprehensive testing
 
 **Option 1 Alignment:** 9/10
+
 - TanStack Query is FP-friendly
 - React hooks align with functional style
 - Easy to write pure components and utilities
 
 **Option 2 Alignment:** 7/10
+
 - Express is middleware-based (somewhat functional)
 - Requires more imperative server code
 - Can still maintain FP style in business logic
 
 **Option 3 Alignment:** 6/10
+
 - Service Workers are inherently imperative
 - XState has functional roots but adds complexity
 - Offline sync logic is complex and stateful
 
 **Option 4 Alignment:** 5/10
+
 - Provider abstraction adds indirection
 - Multiple deployment modes increase complexity
 - Harder to maintain pure functions across environments
 
 **Option 5 Alignment:** 10/10
+
 - Simplest option, easiest to keep functional
 - Minimal abstractions
 - Clear, explicit code paths

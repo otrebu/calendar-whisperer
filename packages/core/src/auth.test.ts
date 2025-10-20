@@ -1,3 +1,5 @@
+import type { AuthenticationRecord } from "@azure/identity";
+
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -5,16 +7,18 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import {
   clearAuthCache,
-  loadCachedAuthResult,
-  storeAuthResult,
+  loadAuthenticationRecord,
+  storeAuthenticationRecord,
 } from "./auth.js";
-import { type AuthResult } from "./types.js";
 
-describe("auth caching", () => {
+describe("authentication record caching", () => {
   let testCacheDirectory = "";
 
   beforeEach(async () => {
-    testCacheDirectory = path.join(os.tmpdir(), `auth-test-${Date.now()}`);
+    testCacheDirectory = path.join(
+      os.tmpdir(),
+      `auth-record-test-${Date.now()}`,
+    );
     await fs.mkdir(testCacheDirectory, { recursive: true });
   });
 
@@ -26,15 +30,18 @@ describe("auth caching", () => {
     }
   });
 
-  test("storeAuthResult creates cache file", async () => {
-    const authResult: AuthResult = {
-      accessToken: "test-token",
-      expiresOnTimestamp: Date.now() + 3_600_000,
+  test("storeAuthenticationRecord creates cache file", async () => {
+    const mockAuthRecord: AuthenticationRecord = {
+      authority: "https://login.microsoftonline.com/common",
+      clientId: "test-client-id",
+      homeAccountId: "test-home-account-id",
+      tenantId: "test-tenant-id",
+      username: "test@example.com",
     };
 
-    await storeAuthResult(authResult, testCacheDirectory);
+    await storeAuthenticationRecord(mockAuthRecord, testCacheDirectory);
 
-    const cachePath = path.join(testCacheDirectory, "token.json");
+    const cachePath = path.join(testCacheDirectory, "auth-record.json");
     const isCacheFilePresent = await fs
       .access(cachePath)
       .then(() => true)
@@ -43,49 +50,73 @@ describe("auth caching", () => {
     expect(isCacheFilePresent).toBe(true);
   });
 
-  test("loadCachedAuthResult returns cached token", async () => {
-    const authResult: AuthResult = {
-      accessToken: "test-token",
-      expiresOnTimestamp: Date.now() + 3_600_000,
+  test("loadAuthenticationRecord returns cached record", async () => {
+    const mockAuthRecord: AuthenticationRecord = {
+      authority: "https://login.microsoftonline.com/common",
+      clientId: "test-client-id",
+      homeAccountId: "test-home-account-id",
+      tenantId: "test-tenant-id",
+      username: "test@example.com",
     };
 
-    await storeAuthResult(authResult, testCacheDirectory);
-    const loaded = await loadCachedAuthResult(testCacheDirectory);
+    await storeAuthenticationRecord(mockAuthRecord, testCacheDirectory);
+    const loaded = await loadAuthenticationRecord(testCacheDirectory);
 
-    expect(loaded).toEqual(authResult);
+    expect(loaded).toBeTruthy();
+    expect(loaded?.username).toBe("test@example.com");
+    expect(loaded?.clientId).toBe("test-client-id");
   });
 
-  test("loadCachedAuthResult returns null for expired token", async () => {
-    const authResult: AuthResult = {
-      accessToken: "test-token",
-      expiresOnTimestamp: Date.now() - 1000,
-    };
-
-    await storeAuthResult(authResult, testCacheDirectory);
-    const loaded = await loadCachedAuthResult(testCacheDirectory);
-
+  test("loadAuthenticationRecord returns null when cache doesn't exist", async () => {
+    const loaded = await loadAuthenticationRecord(testCacheDirectory);
     expect(loaded).toBeNull();
   });
 
-  test("loadCachedAuthResult returns null when cache doesn't exist", async () => {
-    const loaded = await loadCachedAuthResult(testCacheDirectory);
+  test("loadAuthenticationRecord returns null for invalid JSON", async () => {
+    const cachePath = path.join(testCacheDirectory, "auth-record.json");
+    await fs.writeFile(cachePath, "invalid json", "utf8");
+
+    const loaded = await loadAuthenticationRecord(testCacheDirectory);
     expect(loaded).toBeNull();
   });
 
-  test("clearAuthCache removes cache file", async () => {
-    const authResult: AuthResult = {
-      accessToken: "test-token",
-      expiresOnTimestamp: Date.now() + 3_600_000,
+  test("clearAuthCache removes auth record file", async () => {
+    const mockAuthRecord: AuthenticationRecord = {
+      authority: "https://login.microsoftonline.com/common",
+      clientId: "test-client-id",
+      homeAccountId: "test-home-account-id",
+      tenantId: "test-tenant-id",
+      username: "test@example.com",
     };
 
-    await storeAuthResult(authResult, testCacheDirectory);
+    await storeAuthenticationRecord(mockAuthRecord, testCacheDirectory);
     await clearAuthCache(testCacheDirectory);
 
-    const loaded = await loadCachedAuthResult(testCacheDirectory);
-    expect(loaded).toBeNull();
+    const loadedRecord = await loadAuthenticationRecord(testCacheDirectory);
+
+    expect(loadedRecord).toBeNull();
   });
 
   test("clearAuthCache doesn't throw when cache doesn't exist", async () => {
     await expect(clearAuthCache(testCacheDirectory)).resolves.not.toThrow();
+  });
+
+  test("serialized auth record is valid JSON", async () => {
+    const mockAuthRecord: AuthenticationRecord = {
+      authority: "https://login.microsoftonline.com/common",
+      clientId: "test-client-id",
+      homeAccountId: "test-home-account-id",
+      tenantId: "test-tenant-id",
+      username: "test@example.com",
+    };
+
+    await storeAuthenticationRecord(mockAuthRecord, testCacheDirectory);
+
+    const cachePath = path.join(testCacheDirectory, "auth-record.json");
+    const buffer = await fs.readFile(cachePath);
+    const parsed: unknown = JSON.parse(buffer.toString());
+
+    expect(parsed).toHaveProperty("username", "test@example.com");
+    expect(parsed).toHaveProperty("clientId", "test-client-id");
   });
 });

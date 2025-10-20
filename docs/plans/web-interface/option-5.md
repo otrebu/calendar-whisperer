@@ -41,6 +41,7 @@ packages/
 ```
 
 **No Subdirectories**
+
 - No `components/` folder (everything in App.tsx)
 - No `hooks/` folder (inline in App.tsx)
 - No `lib/` folder (minimal abstraction)
@@ -70,11 +71,13 @@ await msalInstance.initialize();
 ```
 
 **No Redirect Flow**
+
 - Popup only (simpler, no URL parameter handling)
 - No silent token refresh initially (user re-authenticates on expiry)
 - No logout redirect (just clears session storage)
 
 **Why Popup?**
+
 - Simpler than redirect (no URL parameter parsing)
 - Fewer edge cases to handle
 - Good enough for MVP
@@ -95,6 +98,7 @@ git push origin main
 ```
 
 **No Backend**
+
 - Pure client-side application
 - All API calls directly to Microsoft Graph from browser
 - No server-side rendering
@@ -114,12 +118,14 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ```
 
 **No External Libraries:**
+
 - ❌ No TanStack Query
 - ❌ No XState
 - ❌ No Redux/Zustand
 - ❌ No React Context (unless absolutely necessary)
 
 **Why No State Management Library?**
+
 - MVP doesn't need complex state
 - Reduces dependencies
 - Faster development
@@ -133,6 +139,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ### Phase 1: Setup (1 day)
 
 **Day 1: Project Setup**
+
 - [ ] Create `packages/web/` directory
 - [ ] Initialize minimal package.json (5 dependencies max)
 - [ ] Setup tsconfig.json
@@ -143,12 +150,14 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Test dev server runs
 
 **Deliverables:**
+
 - ✅ Dev server running
 - ✅ Basic HTML page displayed
 
 ### Phase 2: Authentication (1-2 days)
 
 **Day 2: MSAL Setup**
+
 - [ ] Install @azure/msal-browser only (no msal-react)
 - [ ] Configure MSAL instance inline
 - [ ] Create login button
@@ -158,6 +167,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Add error handling
 
 **Day 3 (if needed): Auth Polish**
+
 - [ ] Show loading state
 - [ ] Show user name after login
 - [ ] Add logout button
@@ -165,6 +175,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Handle auth errors gracefully
 
 **Deliverables:**
+
 - ✅ User can log in
 - ✅ Token available for API calls
 - ✅ Basic error handling
@@ -172,6 +183,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ### Phase 3: Calendar Data (2 days)
 
 **Day 4: Data Fetching**
+
 - [ ] Import core package Graph client
 - [ ] Fetch events for today on component mount
 - [ ] Store events in state
@@ -180,6 +192,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Test with real Microsoft account
 
 **Day 5: Display Events**
+
 - [ ] Map events to simple list
 - [ ] Format dates with date-fns
 - [ ] Style with Tailwind
@@ -188,6 +201,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Test with various event types
 
 **Deliverables:**
+
 - ✅ Events fetched from Graph API
 - ✅ Events displayed in list
 - ✅ Basic styling
@@ -195,6 +209,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ### Phase 4: UI Polish (1-2 days)
 
 **Day 6: Visual Design**
+
 - [ ] Add header with app name
 - [ ] Style authentication button
 - [ ] Style event list
@@ -203,6 +218,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Loading spinners
 
 **Day 7 (if needed): UX Improvements**
+
 - [ ] Better error messages
 - [ ] Empty state design
 - [ ] Accessibility basics (ARIA labels)
@@ -210,6 +226,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Test on multiple browsers
 
 **Deliverables:**
+
 - ✅ Clean, minimal UI
 - ✅ Responsive layout
 - ✅ Polished appearance
@@ -217,6 +234,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ### Phase 5: Deployment (1 day)
 
 **Day 8: Production Deployment**
+
 - [ ] Test production build locally
 - [ ] Create Vercel project
 - [ ] Configure environment variables
@@ -226,6 +244,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Fix any production issues
 
 **Deliverables:**
+
 - ✅ Production deployment live
 - ✅ Authentication working
 - ✅ Events displaying
@@ -233,6 +252,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ### Phase 6: Documentation (1 day)
 
 **Day 9: Minimal Documentation**
+
 - [ ] Update README with web interface section
 - [ ] Document authentication setup (Azure steps)
 - [ ] Add environment variables to .env.example
@@ -240,6 +260,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 - [ ] Link to deployed site
 
 **Deliverables:**
+
 - ✅ Basic documentation
 - ✅ Setup instructions
 - ✅ Ready for users
@@ -277,21 +298,25 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** Solo developer or very small team
 - **Skill Level:** Basic React knowledge sufficient
 - **Experience:** No advanced patterns required
 
 ### Timeline Constraints
+
 - **Urgency:** Need something in 1-2 weeks
 - **Validation:** Want to validate concept before investing more
 - **Iteration:** Plan to enhance based on user feedback
 
 ### User Requirements
+
 - **Basic Needs:** Just need to view calendar events
 - **Tolerance:** Okay with basic UX initially
 - **Feedback:** Early adopters willing to provide feedback
 
 ### Technical Context
+
 - **Proof of Concept:** Validating idea before full investment
 - **MVP First:** Ship fast, iterate based on usage
 - **Lean Startup:** Build → Measure → Learn cycle
@@ -382,6 +407,7 @@ const [selectedDate, setSelectedDate] = useState(new Date());
 **Total Dependencies:** 5 production + 7 development = 12 total
 
 **Why So Few?**
+
 - No @azure/msal-react (use browser directly, less abstraction)
 - No TanStack Query (useState + useEffect sufficient for MVP)
 - No XState (no complex state machines needed)
@@ -584,28 +610,36 @@ export default function App() {
 ## Risk Mitigation
 
 ### Risk: Scope Creep
+
 **Mitigation:**
+
 - Strict feature list (only today's events)
 - No date picker initially
 - No additional views
 - Document V2 features separately
 
 ### Risk: Technical Debt
+
 **Mitigation:**
+
 - Document refactoring plan
 - Clear TODO comments for improvements
 - V2 plan includes adding proper state management
 - Accept that this is MVP, not final architecture
 
 ### Risk: User Expectations
+
 **Mitigation:**
+
 - Clear "MVP" or "Beta" label
 - Collect feedback for V2
 - Set expectations in documentation
 - Emphasize simplicity as feature
 
 ### Risk: Token Expiry Handling
+
 **Mitigation:**
+
 - Simple error message: "Please sign in again"
 - Document that token refresh is V2 feature
 - Acceptable for MVP usage
@@ -615,23 +649,27 @@ export default function App() {
 ## Evolution Path to V2
 
 ### Phase 1: MVP (Option 5) - 1-2 weeks
+
 - Basic authentication
 - Today's events only
 - Minimal UI
 
 ### Phase 2: Enhanced MVP - 2-3 weeks
+
 - Add date picker
 - Add TanStack Query for caching
 - Better error handling
 - Redirect auth flow
 
 ### Phase 3: Full Featured - 4-6 weeks
+
 - Multiple calendar views
 - Event filtering and search
 - Analytics calculations
 - Export functionality
 
 ### Phase 4: Advanced - 8+ weeks
+
 - Consider Option 3 (PWA) features
 - Offline support
 - Push notifications
@@ -642,25 +680,30 @@ export default function App() {
 ## Success Metrics
 
 ### MVP Success
+
 - ✅ Ships in 1-2 weeks
 - ✅ Authentication works reliably
 - ✅ Events display correctly
 - ✅ Zero critical bugs
 
 ### User Validation
+
 - ✅ 10+ users try MVP
 - ✅ Positive feedback on basic functionality
 - ✅ Clear feature requests for V2
 - ✅ Users return multiple times
 
 ### Technical Validation
+
 - ✅ Core package integration works
 - ✅ MSAL authentication stable
 - ✅ Graph API calls successful
 - ✅ Deployment process smooth
 
 ### Decision Point
+
 After MVP, decide:
+
 - **If positive feedback:** Proceed with Option 1 (Cloud SPA with proper state management)
 - **If lukewarm:** Keep as-is, add features incrementally
 - **If negative:** Pivot or abandon
@@ -676,6 +719,7 @@ Option 5 is the absolute fastest path to a working web interface. Perfect for va
 **Not recommended if:** Need production-grade quality, multiple features, advanced UX
 
 **Next Steps After MVP:**
+
 1. Gather user feedback
 2. If positive: Refactor into Option 1 (add TanStack Query, better auth)
 3. If very positive: Consider Option 3 (PWA) for advanced features

@@ -11,75 +11,90 @@ Key considerations include switching from device code flow (CLI-optimized) to au
 ## Real-World Examples
 
 ### 1. Prisma Studio
+
 **Repository:** https://github.com/prisma/prisma
 
 **Architecture:**
+
 - CLI tool (`prisma`) for database migrations and schema management
 - Web GUI (`prisma studio`) served locally at http://localhost:5555
 - Shared packages for Prisma Client, schema parsing, and database interactions
 - Studio runs as a separate server process launched via CLI command
 
 **Key Takeaways:**
+
 - Local web server approach for non-cloud web interfaces
 - CLI can launch and manage web server process
 - Shared TypeScript types and database client across CLI and web
 - Monorepo structure with multiple packages under `/packages`
 
 ### 2. Turborepo + tRPC Examples
+
 **Repository:** https://github.com/vercel/turborepo/tree/main/examples/with-trpc
 
 **Architecture:**
+
 - Monorepo with `apps/` and `packages/` directories
 - Shared API layer using tRPC provides type-safe communication
 - Web apps (Next.js) and CLI tools share business logic packages
 - pnpm workspaces with `workspace:*` protocol for internal dependencies
 
 **Key Takeaways:**
+
 - Clear separation between apps (CLI, web) and packages (shared logic)
 - Type safety across boundaries using tRPC or direct TypeScript imports
 - Vite for fast web development, tsx/ts-node for CLI
 - Independent deployment strategies for different app types
 
 ### 3. Nx CLI + Nx Cloud Console
+
 **Repository:** https://github.com/nrwl/nx
 
 **Architecture:**
+
 - CLI tool for monorepo management and task orchestration
 - Web dashboard (Nx Cloud) for visualizing build performance and caching
 - Shared packages for computation, graph analysis, and project configuration
 - CLI can send telemetry/data to web dashboard
 
 **Key Takeaways:**
+
 - CLI and web can operate independently or communicate via APIs
 - Web interface provides enhanced visualization of CLI data
 - Shared TypeScript packages for core business logic
 - Different user experiences optimized for each platform
 
 ### 4. Vercel CLI + Vercel Dashboard
+
 **Project:** https://vercel.com (closed source, but documented patterns)
 
 **Architecture:**
+
 - CLI for deployments, environment management, and local development
 - Web dashboard for project management, analytics, and team collaboration
 - Shared authentication tokens between CLI and web
 - REST/GraphQL APIs bridge CLI and web functionality
 
 **Key Takeaways:**
+
 - Single authentication system works across CLI and web
 - CLI writes config files that web can read and vice versa
 - Web provides richer UX for complex operations, CLI for automation
 - APIs provide shared business logic layer
 
 ### 5. GitHub CLI + GitHub Web
+
 **Repository:** https://github.com/cli/cli (Go-based, but patterns apply)
 
 **Architecture:**
+
 - CLI for terminal-based workflows and automation
 - Web interface for graphical interactions
 - Shared GraphQL API layer accessed by both
 - OAuth device flow for CLI, redirect flow for web
 
 **Key Takeaways:**
+
 - Different OAuth flows optimized for each platform
 - Shared API contracts ensure consistency
 - CLI optimized for scriptability, web for discoverability
@@ -320,7 +335,10 @@ The `@calendar-whisperer/core` package provides these reusable exports:
 #### packages/web/src/lib/graphClient.ts
 
 ```typescript
-import { createGraphClient, fetchEventsForDate } from "@calendar-whisperer/core";
+import {
+  createGraphClient,
+  fetchEventsForDate,
+} from "@calendar-whisperer/core";
 import type { CalendarEvent } from "@calendar-whisperer/core";
 import { useMsal } from "@azure/msal-react";
 
@@ -364,18 +382,24 @@ export async function fetchWebEventsForDate(
 ### DRY Principle in Action
 
 **GOOD - Shared business logic:**
+
 ```typescript
 // Both CLI and web import from core
-import { fetchEventsForDate, createGraphClient } from "@calendar-whisperer/core";
+import {
+  fetchEventsForDate,
+  createGraphClient,
+} from "@calendar-whisperer/core";
 ```
 
 **GOOD - Shared types:**
+
 ```typescript
 // Both CLI and web use the same types
 import type { CalendarEvent } from "@calendar-whisperer/core";
 ```
 
 **BAD - Duplicating Graph API logic:**
+
 ```typescript
 // DON'T do this in web package - use core instead
 async function fetchEvents() {
@@ -385,6 +409,7 @@ async function fetchEvents() {
 ```
 
 **GOOD - Platform-specific auth wrappers:**
+
 ```typescript
 // Web-specific auth wraps core Graph client
 export function useGraphClient() {
@@ -397,25 +422,27 @@ export function useGraphClient() {
 
 ### Comparison: Device Code Flow vs Authorization Code Flow
 
-| Aspect | Device Code Flow (CLI) | Authorization Code + PKCE (Web) |
-|--------|----------------------|--------------------------------|
-| **User Experience** | Copy code, visit URL in browser | Click login, redirect to Azure, redirect back |
-| **Best For** | Headless devices, CLIs, smart TVs | Web apps, SPAs, mobile apps |
-| **Security** | Good for CLI, user verifies code | Excellent for web with PKCE extension |
-| **Token Storage** | Filesystem with file permissions | Browser storage (sessionStorage recommended) |
-| **Azure Endpoint** | Device code authorization endpoint | Standard OAuth2 authorization endpoint |
-| **Refresh Tokens** | Supported, cached to file | Supported, managed by MSAL |
-| **Library** | `@azure/identity` | `@azure/msal-browser`, `@azure/msal-react` |
+| Aspect              | Device Code Flow (CLI)             | Authorization Code + PKCE (Web)               |
+| ------------------- | ---------------------------------- | --------------------------------------------- |
+| **User Experience** | Copy code, visit URL in browser    | Click login, redirect to Azure, redirect back |
+| **Best For**        | Headless devices, CLIs, smart TVs  | Web apps, SPAs, mobile apps                   |
+| **Security**        | Good for CLI, user verifies code   | Excellent for web with PKCE extension         |
+| **Token Storage**   | Filesystem with file permissions   | Browser storage (sessionStorage recommended)  |
+| **Azure Endpoint**  | Device code authorization endpoint | Standard OAuth2 authorization endpoint        |
+| **Refresh Tokens**  | Supported, cached to file          | Supported, managed by MSAL                    |
+| **Library**         | `@azure/identity`                  | `@azure/msal-browser`, `@azure/msal-react`    |
 
 ### Recommended Approach for Web: Authorization Code + PKCE
 
 **Why PKCE?**
+
 - Industry standard for SPAs as of 2025
 - No client secret needed (secure for public clients)
 - Protection against authorization code interception
 - Recommended by Azure for SPAs
 
 **Why NOT device code flow for web?**
+
 - Poor UX: user has to manually copy/paste code
 - Designed for input-constrained devices
 - Unnecessary complexity in web environment
@@ -434,6 +461,7 @@ https://yourdomain.com/auth/callback
 ```
 
 Enable:
+
 - Authorization code flow with PKCE
 - Access tokens and ID tokens for implicit flow (optional for hybrid scenarios)
 
@@ -673,10 +701,12 @@ cache: {
 **Location:** Browser sessionStorage or localStorage
 **Permissions:** Same-origin policy protects token
 **Persistence:**
-  - sessionStorage: Only within browser tab, cleared on tab close
-  - localStorage: Persists across browser restarts, enables SSO across tabs
+
+- sessionStorage: Only within browser tab, cleared on tab close
+- localStorage: Persists across browser restarts, enables SSO across tabs
 
 **Security Best Practices:**
+
 1. **Use sessionStorage by default** - More secure, no cross-tab SSO needed for most web apps
 2. **Switch to localStorage** only if SSO across tabs is critical requirement
 3. **Never use localStorage for highly sensitive apps** - Use sessionStorage or memory
@@ -685,15 +715,15 @@ cache: {
 
 ### Comparison: CLI vs Web Authentication
 
-| Aspect | CLI | Web |
-|--------|-----|-----|
-| **Flow** | Device code | Authorization code + PKCE |
-| **Storage** | Filesystem (`token.json`) | Browser storage (sessionStorage) |
-| **Library** | `@azure/identity` | `@azure/msal-browser`, `@azure/msal-react` |
-| **User Action** | Copy code to browser | Click login, auto-redirect |
-| **Token Refresh** | Azure SDK auto-refreshes | MSAL auto-refreshes silently |
-| **Shared Code** | `createGraphClient`, `fetchEventsForDate` from core | Same shared code |
-| **Platform-Specific** | `DeviceCodeCredential`, filesystem | `PublicClientApplication`, browser storage |
+| Aspect                | CLI                                                 | Web                                        |
+| --------------------- | --------------------------------------------------- | ------------------------------------------ |
+| **Flow**              | Device code                                         | Authorization code + PKCE                  |
+| **Storage**           | Filesystem (`token.json`)                           | Browser storage (sessionStorage)           |
+| **Library**           | `@azure/identity`                                   | `@azure/msal-browser`, `@azure/msal-react` |
+| **User Action**       | Copy code to browser                                | Click login, auto-redirect                 |
+| **Token Refresh**     | Azure SDK auto-refreshes                            | MSAL auto-refreshes silently               |
+| **Shared Code**       | `createGraphClient`, `fetchEventsForDate` from core | Same shared code                           |
+| **Platform-Specific** | `DeviceCodeCredential`, filesystem                  | `PublicClientApplication`, browser storage |
 
 ## Development Workflow
 
@@ -746,12 +776,14 @@ Uses pnpm's `--parallel` flag to run both dev servers simultaneously.
 ### Development Workflow
 
 1. **Start Core Development**
+
    ```bash
    # Terminal 1: Watch core for changes
    pnpm --filter core dev
    ```
 
 2. **Start Web Development**
+
    ```bash
    # Terminal 2: Run web dev server
    pnpm dev:web
@@ -763,12 +795,14 @@ Uses pnpm's `--parallel` flag to run both dev servers simultaneously.
    - Edit files in `packages/cli/src/` - restart CLI to test
 
 4. **Type Check**
+
    ```bash
    # Check all packages for type errors
    pnpm type-check
    ```
 
 5. **Test**
+
    ```bash
    # Run all tests
    pnpm test
@@ -780,16 +814,19 @@ Uses pnpm's `--parallel` flag to run both dev servers simultaneously.
 ### Project References and Incremental Builds
 
 TypeScript project references enable:
+
 - Faster incremental builds
 - Better type checking across packages
 - Clear dependency boundaries
 
 When you build web package:
+
 ```bash
 pnpm --filter web build
 ```
 
 TypeScript will:
+
 1. Check if core package is built
 2. Build core if needed (or if changed)
 3. Build web package with type safety from core
@@ -820,6 +857,7 @@ export default defineConfig({
 ### Environment Variables
 
 **CLI (.env in root):**
+
 ```env
 AZURE_CLIENT_ID=xxx
 AZURE_TENANT_ID=xxx
@@ -828,6 +866,7 @@ CACHE_DIRECTORY=.auth-cache
 ```
 
 **Web (packages/web/.env):**
+
 ```env
 VITE_AZURE_CLIENT_ID=xxx
 VITE_AZURE_TENANT_ID=xxx
@@ -838,6 +877,7 @@ Note: Only variables prefixed with `VITE_` are exposed to browser code.
 ### Debugging
 
 **CLI:**
+
 ```bash
 # Use Node.js debugger
 node --inspect packages/cli/dist/index.js events
@@ -847,6 +887,7 @@ tsx --inspect packages/cli/src/index.ts events
 ```
 
 **Web:**
+
 - Use browser DevTools (Chrome, Firefox, Edge)
 - React DevTools extension for component inspection
 - Redux DevTools for state management (if using)
@@ -872,7 +913,7 @@ tsx --inspect packages/cli/src/index.ts events
 - [ ] Install MSAL packages: `@azure/msal-browser`, `@azure/msal-react`
 - [ ] Create msalConfig.ts with app configuration
 - [ ] Add redirect URI to Azure App Registration (http://localhost:3000)
-- [ ] Create .env file in packages/web/ with VITE_ prefixed variables
+- [ ] Create .env file in packages/web/ with VITE\_ prefixed variables
 - [ ] Add .env to .gitignore (should already be there)
 - [ ] Wrap App with MsalProvider in main.tsx
 - [ ] Create useAuth hook for authentication logic
@@ -960,6 +1001,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** CLI uses device code flow. Web would normally use redirect flow (better UX). But if users want a unified experience or to test device flow in browser, we could support both.
 
 **Options:**
+
 - A) Web uses redirect flow only (recommended, best UX)
 - B) Web supports both flows with a toggle (adds complexity)
 - C) Web uses device code flow only (poor UX, but consistent with CLI)
@@ -973,6 +1015,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** CLI stores tokens in `.auth-cache/token.json`. Web stores tokens in browser storage. They could potentially share tokens through a local server or file-based communication.
 
 **Options:**
+
 - A) Separate auth sessions (recommended, cleaner separation)
 - B) Shared tokens via file system (CLI writes, web reads)
 - C) Shared tokens via local API (CLI runs server, web connects)
@@ -986,6 +1029,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** Prisma Studio runs locally. Most web dashboards deploy to cloud. Local has privacy benefits; cloud has accessibility benefits.
 
 **Options:**
+
 - A) Cloud deployment only (e.g., Vercel, Netlify)
 - B) Local development server only
 - C) Both: local for development, cloud for production
@@ -1000,6 +1044,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** Your coding style preferences mention XState. Web interface will have: auth state (handled by MSAL), calendar data fetching, UI state (date selection, filters).
 
 **Options:**
+
 - A) React state + hooks only (simpler, less setup)
 - B) XState for complex async flows (calendar data fetching)
 - C) XState + React Context for global state
@@ -1014,6 +1059,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** Current architecture is client-side only (CLI and web both fetch raw events, calculate locally). Could add backend API for calculations.
 
 **Options:**
+
 - A) Client-side calculations only (current approach)
 - B) Add backend API for calculations (more scalable, but adds complexity)
 - C) Edge functions for calculations (serverless, scales automatically)
@@ -1027,6 +1073,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** CLI is single-user (local tool). Web could support multiple users with accounts, or remain single-user (each user authenticates with their own Microsoft account).
 
 **Options:**
+
 - A) Single-user only (each user logs in with their own Microsoft account)
 - B) Multi-tenant with application database (users, settings, preferences)
 - C) Hybrid: Single-user but support multiple Azure accounts per user
@@ -1040,6 +1087,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** CLI requires internet to fetch events. Web could cache events for offline viewing.
 
 **Options:**
+
 - A) Online only (requires internet connection)
 - B) Offline support with Service Workers and IndexedDB caching
 - C) PWA with offline capabilities
@@ -1053,6 +1101,7 @@ tsx --inspect packages/cli/src/index.ts events
 **Context:** CLI accepts `--timezone` flag. Graph API supports timezone headers. Users may be in different timezones than their calendar.
 
 **Options:**
+
 - A) Use browser's local timezone automatically
 - B) Allow user to select timezone (dropdown or input)
 - C) Detect from user's Graph profile

@@ -78,6 +78,7 @@ export const loginRequest = {
 ```
 
 **Flow:**
+
 1. User clicks "Sign in with Microsoft"
 2. Redirect to Azure AD login page
 3. User authenticates
@@ -87,6 +88,7 @@ export const loginRequest = {
 7. Token automatically refreshed by MSAL
 
 **Why PKCE?**
+
 - Industry standard for SPAs (2025)
 - No client secret needed (secure for public clients)
 - Protection against authorization code interception
@@ -97,6 +99,7 @@ export const loginRequest = {
 **Target:** Vercel (primary) or Netlify (alternative)
 
 **Why Vercel?**
+
 - Zero-config deployment for Vite + React
 - Automatic HTTPS
 - Global CDN
@@ -104,6 +107,7 @@ export const loginRequest = {
 - Free tier sufficient for personal/small team use
 
 **Build Output:**
+
 ```bash
 pnpm build:web
 # → packages/web/dist/
@@ -115,6 +119,7 @@ pnpm build:web
 ```
 
 **Environment Variables (Vercel):**
+
 ```env
 VITE_AZURE_CLIENT_ID=xxx
 VITE_AZURE_TENANT_ID=xxx
@@ -127,6 +132,7 @@ VITE_AZURE_TENANT_ID=xxx
 **UI State:** React hooks (useState, useReducer)
 
 **Why TanStack Query?**
+
 - Automatic caching and deduplication
 - Background refetching
 - Optimistic updates
@@ -136,6 +142,7 @@ VITE_AZURE_TENANT_ID=xxx
 - Aligns with FP principles
 
 **Example:**
+
 ```typescript
 // packages/web/src/hooks/useCalendarEvents.ts
 import { useQuery } from "@tanstack/react-query";
@@ -159,6 +166,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ```
 
 **No XState Initially:**
+
 - Start simple with React hooks
 - Add XState later if complex state machines emerge
 - Calendar data fetching doesn't require state machines
@@ -170,6 +178,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ### Phase 1: Setup and Authentication (4 days)
 
 **Day 1: Web Package Scaffold**
+
 - [ ] Create `packages/web/` directory
 - [ ] Initialize package.json with dependencies
 - [ ] Setup tsconfig.json extending base config
@@ -180,6 +189,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Test dev server: `pnpm dev:web`
 
 **Day 2-3: MSAL Authentication**
+
 - [ ] Install MSAL packages
 - [ ] Create msalConfig.ts with PKCE configuration
 - [ ] Update Azure App Registration with redirect URIs
@@ -191,6 +201,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Test token acquisition for Graph API
 
 **Day 4: Core Package Integration**
+
 - [ ] Import types from core
 - [ ] Import createGraphClient from core
 - [ ] Import fetchEventsForDate from core
@@ -199,6 +210,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Verify types work correctly in web context
 
 **Deliverables:**
+
 - ✅ Working authentication flow
 - ✅ Core package integrated
 - ✅ Graph API calls functional
@@ -206,6 +218,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ### Phase 2: UI Components and Data Fetching (5 days)
 
 **Day 5-6: TanStack Query Setup**
+
 - [ ] Install TanStack Query
 - [ ] Create QueryClient configuration
 - [ ] Wrap App with QueryClientProvider
@@ -214,6 +227,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Add React Query DevTools (dev only)
 
 **Day 7-8: Calendar Components**
+
 - [ ] Create Header component (user info, sign out button)
 - [ ] Create DatePicker component (select date to view)
 - [ ] Create EventList component (display events)
@@ -223,6 +237,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Add empty state (no events)
 
 **Day 9: App Integration**
+
 - [ ] Create main App.tsx with routing logic
 - [ ] Integrate all components
 - [ ] Add timezone selector (optional)
@@ -230,6 +245,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Fix bugs and edge cases
 
 **Deliverables:**
+
 - ✅ Functional calendar UI
 - ✅ Event list with details
 - ✅ Loading and error states
@@ -238,6 +254,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ### Phase 3: Styling and Polish (3 days)
 
 **Day 10: Tailwind Styling**
+
 - [ ] Design system tokens (colors, spacing, typography)
 - [ ] Style Header component
 - [ ] Style Calendar/EventList components
@@ -246,6 +263,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Dark mode support (optional)
 
 **Day 11: UX Enhancements**
+
 - [ ] Add transitions and animations
 - [ ] Improve loading indicators
 - [ ] Better error messages
@@ -254,6 +272,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Screen reader testing
 
 **Day 12: Testing**
+
 - [ ] Write component tests (React Testing Library)
 - [ ] Write hook tests (useAuth, useCalendarEvents)
 - [ ] Test authentication flows
@@ -262,6 +281,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Manual testing across browsers
 
 **Deliverables:**
+
 - ✅ Polished UI
 - ✅ Responsive design
 - ✅ Comprehensive tests
@@ -270,6 +290,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ### Phase 4: Deployment and Documentation (2 days)
 
 **Day 13: Deployment Setup**
+
 - [ ] Test production build locally
 - [ ] Create Vercel project
 - [ ] Configure environment variables in Vercel
@@ -279,6 +300,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Setup custom domain (optional)
 
 **Day 14: Documentation**
+
 - [ ] Update README with web interface section
 - [ ] Document web-specific scripts
 - [ ] Add web authentication setup guide
@@ -288,6 +310,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 - [ ] Update contributing guide
 
 **Deliverables:**
+
 - ✅ Production deployment
 - ✅ Comprehensive documentation
 - ✅ User onboarding guide
@@ -324,21 +347,25 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 ## Best Suited For
 
 ### Team Profile
+
 - **Size:** Solo developer or small team (2-3 people)
 - **Skill Level:** Comfortable with React and TypeScript
 - **Experience:** Familiar with modern web development patterns
 
 ### Timeline Constraints
+
 - **Urgency:** Need working web interface in 2-3 weeks
 - **Iteration:** Prefer shipping MVP and iterating based on feedback
 
 ### User Requirements
+
 - **Access Pattern:** Users access from web browser primarily
 - **Offline:** Not required initially
 - **Privacy:** Standard cloud deployment acceptable
 - **Authentication:** Comfortable with Microsoft account login
 
 ### Technical Context
+
 - **Infrastructure:** Comfortable with cloud deployment
 - **Maintenance:** Want low maintenance burden
 - **Flexibility:** Want to add features incrementally
@@ -450,6 +477,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 **Total Dependencies:** 7 production + 11 development = 18 total
 
 **Dependency Justification:**
+
 - **@azure/msal-browser, @azure/msal-react:** Industry-standard auth for Microsoft
 - **@tanstack/react-query:** Best-in-class data fetching library
 - **React, React-DOM:** Standard web framework
@@ -469,7 +497,7 @@ export function useCalendarEvents(date: Date, timeZone = "UTC") {
 import {
   createGraphClient,
   fetchEventsForDate,
-  type CalendarEvent
+  type CalendarEvent,
 } from "@calendar-whisperer/core";
 
 /**
@@ -636,35 +664,45 @@ function EventCard(props: EventCardProps) {
 ## Risk Mitigation
 
 ### Risk: MSAL Configuration Errors
+
 **Mitigation:**
+
 - Use official Microsoft documentation
 - Test in development before production
 - Create detailed setup guide with screenshots
 - Provide .env.example with clear instructions
 
 ### Risk: Azure Redirect URI Mismatch
+
 **Mitigation:**
+
 - Document exact redirect URIs needed
 - Test with both localhost and production URLs
 - Add troubleshooting section to docs
 - Use environment-based redirect URI configuration
 
 ### Risk: Token Expiration During Use
+
 **Mitigation:**
+
 - MSAL handles silent token refresh automatically
 - Implement error boundary for auth errors
 - Clear error messages guiding user to re-authenticate
 - Test token refresh scenarios
 
 ### Risk: Graph API Rate Limiting
+
 **Mitigation:**
+
 - TanStack Query caching reduces API calls
 - Implement exponential backoff for retries
 - Show user-friendly error message
 - Consider adding request throttling
 
 ### Risk: Browser Compatibility
+
 **Mitigation:**
+
 - Test on Chrome, Firefox, Safari, Edge
 - Use Vite's browser targets for polyfills
 - Document minimum browser versions
@@ -675,6 +713,7 @@ function EventCard(props: EventCardProps) {
 ## Success Metrics
 
 ### Technical Metrics
+
 - ✅ Build time < 30 seconds
 - ✅ Bundle size < 500 KB (gzipped)
 - ✅ Lighthouse score > 90
@@ -683,18 +722,21 @@ function EventCard(props: EventCardProps) {
 - ✅ Zero ESLint warnings
 
 ### Performance Metrics
+
 - ✅ Time to Interactive (TTI) < 2 seconds
 - ✅ First Contentful Paint (FCP) < 1 second
 - ✅ Largest Contentful Paint (LCP) < 2.5 seconds
 - ✅ Cumulative Layout Shift (CLS) < 0.1
 
 ### User Experience Metrics
+
 - ✅ Authentication success rate > 95%
 - ✅ Zero critical bugs in first month
 - ✅ Positive user feedback
 - ✅ Mobile usability score > 90
 
 ### Development Metrics
+
 - ✅ Complete within 2-3 weeks
 - ✅ All acceptance criteria met
 - ✅ Documentation complete
@@ -707,6 +749,7 @@ function EventCard(props: EventCardProps) {
 Option 1 provides the optimal balance of speed, simplicity, and functionality. It leverages modern web development patterns, maximizes code reuse from the core package, and delivers a polished user experience in 2-3 weeks. The approach aligns well with FP-first coding principles and provides a solid foundation for future enhancements.
 
 **Next Steps:**
+
 1. Get approval for this approach
 2. Update Azure App Registration with web redirect URIs
 3. Create web package skeleton

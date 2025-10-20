@@ -2,9 +2,12 @@ import type { FastifyInstance } from "fastify";
 
 import {
   type CalendarEvent,
+  createDeviceCodeCredential,
   createGraphClient,
   fetchEventsForDate,
-  loadCachedAuthResult,
+  getAccessToken,
+  loadAuthenticationRecord,
+  loadConfig,
 } from "@calendar-whisperer/core";
 import { z } from "zod";
 
@@ -46,14 +49,24 @@ export default function registerCalendarRoutes(
 
       const { date, timeZone } = parseResult.data;
 
-      // Load cached token
-      const authResult = await loadCachedAuthResult(cacheDirectory);
+      // Load cached authentication record
+      const authRecord = await loadAuthenticationRecord(cacheDirectory);
 
-      if (!authResult) {
+      if (!authRecord) {
         return reply.status(401).send({
           error: "Not authenticated",
         });
       }
+
+      // Get fresh token using the authentication record
+      const config = loadConfig();
+      const credential = createDeviceCodeCredential(
+        config,
+        undefined,
+        authRecord,
+      );
+
+      const authResult = await getAccessToken(credential, config.graphScopes);
 
       // Fetch from Graph API (always live, no caching)
       const client = createGraphClient(authResult.accessToken);
