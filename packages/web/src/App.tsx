@@ -70,7 +70,7 @@ export default function App() {
         <Calendar onDateChange={handleDateChange} selectedDate={selectedDate} />
         <EventList
           date={selectedDate}
-          error={error as Error | undefined}
+          error={error}
           events={events ?? []}
           isLoading={isLoading}
           onRetry={handleRetry}

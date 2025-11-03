@@ -11,8 +11,9 @@ Calendar Whisperer analyzes Microsoft Graph calendar data to provide insights on
 ```bash
 # Development
 pnpm dev                 # Run CLI in dev mode (uses tsx)
+pnpm web                 # Run full web version (server + UI)
 pnpm dev:server          # Run server only
-pnpm dev:web             # Run web UI
+pnpm dev:web             # Run web UI only
 
 # Build & Test
 pnpm build               # Build all packages (TypeScript compilation)

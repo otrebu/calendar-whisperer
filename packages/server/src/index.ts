@@ -1,3 +1,5 @@
+import { loadConfig } from "@calendar-whisperer/core";
+
 import { startServer } from "./server.js";
 
 /**
@@ -5,12 +7,14 @@ import { startServer } from "./server.js";
  * Can be run standalone: node dist/index.js --port 3001
  */
 
+// Load config to get resolved cache directory (absolute path from monorepo root)
+const coreConfig = loadConfig();
+
 const port = Number(process.env.PORT ?? "3001");
-const cacheDirectory = process.env.CACHE_DIRECTORY ?? ".auth-cache";
 
 const config = {
   allowedOrigins: ["http://localhost:3000", "http://localhost:3001"],
-  cacheDirectory,
+  cacheDirectory: coreConfig.cacheDirectory,
   port,
 };
 

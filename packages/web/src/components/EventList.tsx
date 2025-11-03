@@ -4,7 +4,7 @@ import { formatFullDate, formatTime } from "../lib/formatters";
 
 interface EventListProperties {
   date: Date;
-  error: Error | null;
+  error: Error | null | undefined;
   events: Array<CalendarEvent>;
   isLoading: boolean;
   onRetry?: () => void;
@@ -64,7 +64,7 @@ function EventList({
     );
   }
 
-  if (error !== null) {
+  if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
         <div className="text-red-800">

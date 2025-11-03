@@ -4,8 +4,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/cli" },
-    { "path": "./packages/server" },
-    { "path": "./packages/web" }
+    { "path": "./packages/server" }
   ],
   "compilerOptions": {
     "noEmit": true

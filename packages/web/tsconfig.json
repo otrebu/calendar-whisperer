@@ -12,5 +12,5 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../core" }, { "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "../core" }]
 }
