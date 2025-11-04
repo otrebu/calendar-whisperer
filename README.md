@@ -110,17 +110,29 @@ The web command will:
 ### CLI
 
 ```bash
-# Run without building (development)
-pnpm dev
-
 # Fetch events for today
 pnpm dev events
 
 # Fetch events for a specific date
 pnpm dev events 2025-10-15
 
+# Analyze time for a date range (shows meeting vs focus time)
+pnpm dev events --start-date 2025-10-15 --end-date 2025-10-19
+
+# Analyze current work week (auto-calculates end date from work config)
+pnpm dev events --start-date 2025-10-15
+
+# Override work schedule for analytics
+pnpm dev events --start-date 2025-10-15 --hours-per-week 35 --days-per-week 4
+
+# Disable analytics display for date ranges
+pnpm dev events --start-date 2025-10-15 --no-analytics
+
 # Fetch events with custom timezone
 pnpm dev events 2025-10-15 --timezone "America/New_York"
+
+# View current work schedule configuration
+pnpm dev config show
 
 # Build and run
 pnpm build
