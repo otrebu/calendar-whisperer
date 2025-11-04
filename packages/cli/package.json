@@ -1,0 +1,28 @@
+{
+  "name": "@calendar-whisperer/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "calendar-whisperer": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc --build",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@calendar-whisperer/core": "workspace:*",
+    "@commander-js/extra-typings": "^12.1.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.4.1",
+    "commander": "^12.1.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "open": "^10.1.0",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2"
+  }
+}

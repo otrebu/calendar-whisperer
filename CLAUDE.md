@@ -1,95 +1,195 @@
-# Technical direction
+# CLAUDE.md
 
-Microsoft Graph calendar data to provide events data of the person logging in using their outlook email
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Azure Authentication with device code and caching. Caching must work so that a device code doesn't need to be entered every time.
+## Project Overview
 
-You need to support a CLI interface and a web interface, you must be modular in how you build the application to keep it DRY.
+Calendar Whisperer analyzes Microsoft Graph calendar data to provide insights on meeting time vs. focus work. Monorepo with CLI and web interfaces sharing core authentication and Graph API logic.
 
-## More technical direction and preferences
+## Development Commands
 
-- use pnpm ONLY as your package manger
-- use Typescript in strict mode
-- be able to run the application without building
-- be able to run the application after building
-- use vitest for tests, you must have integration tests and unit tests ( but only for the most critical parts ).
-- use prettier for formatting.
-- use this tools to build the CLI with: boxen, chalk, commander, date-fns, dotenv, ora.
-- Always ask before adding a new library, justify your choice while asking.
-- For the web keep it simple, use a minimal react application, if you decide to use a framework let me know which one.
+```bash
+# Development
+pnpm dev                 # Run CLI in dev mode (uses tsx)
+pnpm web                 # Run full web version (server + UI)
+pnpm dev:server          # Run server only
+pnpm dev:web             # Run web UI only
 
-# How to develop
+# Build & Test
+pnpm build               # Build all packages (TypeScript compilation)
+pnpm test                # Run Vitest tests
+pnpm test:ui             # Run Vitest with UI
+pnpm type-check          # TypeScript type checking across workspace
 
-## 0) First, get context
+# Code Quality
+pnpm lint                # ESLint (uba-eslint-config)
+pnpm lint:fix            # Auto-fix ESLint issues
+pnpm format              # Prettier formatting
+pnpm format:check        # Check formatting without writing
 
-- Before doing anything, read `README`, and package/project config.
-- If missing info (test command, branch naming, CI), **ask** concise questions.
+# Package-specific (use --filter)
+pnpm --filter @calendar-whisperer/core build
+pnpm --filter @calendar-whisperer/cli dev
+```
 
-## 1) Tests 🧪
+## Architecture
 
-- For every new feature, **add or update tests** that demonstrate the intended behavior.
-- When behavior changes, **update tests to reflect the new behavior**, not to “force green”.
-- Keep tests fast; if slow, mark as integration/e2e and isolate from unit runs.
+### Package Structure
 
-## 2) Commit discipline ✍️
+**Monorepo with pnpm workspaces**. Four packages:
 
-- Use **Conventional Commits** with small, meaningful commits:
-  `feat(scope): short imperative summary`
-  Include body + breaking change footer when needed.
-- Run the project’s tests **before each commit**. If tests fail, **do not commit**.
+1. **`@calendar-whisperer/core`** - Shared foundation
+   - Azure authentication (device code flow)
+   - Token caching with `@azure/identity-cache-persistence`
+   - MS Graph client wrapper
+   - Zod schemas for validation
+   - No UI dependencies
 
-## 3) Branching 🔀
+2. **`@calendar-whisperer/cli`** - Terminal interface
+   - Commander.js for CLI commands
+   - `events` command: fetch calendar events
+   - `web` command: launch web UI
+   - Uses core for all auth/Graph logic
 
-- Never work on `main`/`master`. If currently on it:
-  1. Notify: “On main—creating a feature branch.”
-  2. Create branch using repo convention (e.g., `feat/<ticket>-<slug>`), then continue.
-- Push branches and open PRs; **never push directly** to protected branches.
+3. **`@calendar-whisperer/server`** - Fastify API server
+   - Local-only (privacy-first)
+   - Serves web UI + API endpoints
+   - Reuses core auth credential
 
-## 4) Documentation 📝
+4. **`@calendar-whisperer/web`** - React frontend
+   - Vite + React + Tailwind v4
+   - TanStack Query for data fetching
+   - Consumes server API
 
-- After implementing a feature, **update the README and relevant docs** (`/docs`, changelog, examples).
-- Ensure examples and commands are still correct; remove stale sections; keep structure tidy.
+### Authentication Flow
 
-## 5) Pre-merge checklist ✅
+**Critical**: Uses Azure device code flow with persistent caching.
 
-- All tests pass locally and in CI.
-- Lint/type checks pass.
-- Docs updated (README/CHANGELOG/examples).
-- PR description explains **what/why**, links ticket, and notes breaking changes.
+1. First run: `DeviceCodeCredential` shows device code prompt
+2. User authenticates in browser
+3. **Authentication record** (not token) saved to `.auth-cache/auth-record.json`
+4. **Token** cached by Azure SDK (via `tokenCachePersistenceOptions`)
+5. Subsequent runs: Silent auth using cached auth record + token
+6. Token auto-refreshes via Azure SDK
 
-## 6) Safety rails 🛡️
+**Implementation details**:
 
-- If a rule conflicts with repo policy, **ask** and align to the repo’s source of truth.
-- If automation fails (e.g., can’t create a branch), **stop and report** with exact error output.
+- `core/src/auth.ts`: `createDeviceCodeCredential()` with `disableAutomaticAuthentication: true` forces silent auth first
+- `loadAuthenticationRecord()` / `storeAuthenticationRecord()` manage auth record persistence
+- Token cache handled entirely by Azure SDK (not manually stored)
+- Both CLI and web share same `.auth-cache` directory
 
-## 7) Code style and conventions
+### MS Graph Integration
 
-1. FP-first, minimal OOP
+**Core pattern** (`core/src/graph-client.ts`):
 
-- Avoid classes entirely.
-- Only exception: custom errors that extend `Error`.
-- Prefer pure functions, modules, closures, and plain JavaScript objects.
-- Use composition over inheritance. No `this`, no `new`, no prototypes.
+1. `createGraphClient(accessToken)` - creates authenticated Graph client
+2. `fetchCalendarEvents()` - generic date range query
+3. `fetchEventsForDate()` - convenience wrapper for single day
 
-2. Explicit, verbose naming
+**Calendar API**:
 
-- Names must be intention-revealing and self-documenting.
-- Include domain terms and units where relevant (e.g., `timeoutMs`, `priceGBP`).
-- Booleans start with is/has/should; functions are verbs; data are nouns.
-- Avoid abbreviations unless industry-standard (id, URL, HTML).
+- Uses `/me/calendar/calendarView` endpoint
+- Requires `Calendars.Read` permission
+- Returns events sorted by start time
+- All responses validated with Zod schemas
 
-3. Comments explain WHY, not HOW
+### Shared vs. Package-Specific Code
 
-- Write comments only for rationale, constraints, trade-offs, invariants, and gotchas.
-- Do not narrate implementation steps or restate code.
+**Keep core package UI-agnostic**:
 
-4. API & data shape
+- No CLI formatting (boxen, chalk, ora) in core
+- No web framework dependencies in core
+- Core exports: auth functions, Graph client, types/schemas
+- UI packages (cli, web) import from core, never vice versa
 
-- Prefer small, focused functions. If >3 params, accept a single options object.
-- Favor immutable returns; isolate side effects at the edges.
-- Prefer data-first utilities (inputs first, options last; return new values).
+**When adding features**:
 
-5. Legacy/class code encountered
+1. Add business logic to `core`
+2. Add CLI command to `cli/src/commands/`
+3. Add API endpoint to `server/src/routes/`
+4. Add React component to `web/src/components/`
 
-- Propose a functional alternative. If blocked, limit any class usage to the touched scope.
-- Never introduce inheritance hierarchies; keep error subclasses trivial.
+## Testing
+
+**Vitest** configuration at root (`vitest.config.ts`):
+
+- Tests in `packages/**/*.test.ts`
+- Environment: node
+- Coverage: v8 provider
+
+**Test patterns**:
+
+- `core/src/auth.test.ts` - uses mocks for Azure SDK
+- `core/src/config.test.ts` - validates Zod schemas
+- Integration tests mock MS Graph responses
+
+## Configuration
+
+**Environment variables** (`.env`):
+
+```env
+AZURE_CLIENT_ID=<required>
+AZURE_TENANT_ID=<required>
+GRAPH_SCOPES=https://graph.microsoft.com/.default
+CACHE_DIRECTORY=.auth-cache
+```
+
+Validated in `core/src/config.ts` with Zod.
+
+## TypeScript Setup
+
+- Root `tsconfig.base.json` - shared config
+- Each package has own `tsconfig.json` extending base
+- Strict mode enabled
+- Composite project references for faster builds
+- ES modules (`"type": "module"` in all package.json)
+
+## Git Workflow
+
+**Conventional Commits** enforced via Husky + Commitlint:
+
+- `feat:` - new feature
+- `fix:` - bug fix
+- `docs:` - documentation
+- `chore:` - maintenance
+
+**Semantic Release** configured for automated versioning.
+
+## Common Patterns
+
+### Adding a new CLI command
+
+1. Create `packages/cli/src/commands/<name>.ts`
+2. Use `createDeviceCodeCredential()` + `getAccessToken()` from core
+3. Create Graph client with `createGraphClient()`
+4. Use boxen/chalk/ora for terminal UI
+5. Register in `packages/cli/src/index.ts`
+
+### Adding a new API endpoint
+
+1. Create route in `packages/server/src/routes/<name>.ts`
+2. Import auth/Graph functions from core
+3. Return JSON responses
+4. Register in `packages/server/src/server.ts`
+
+### Extending Graph data fetching
+
+1. Add new function to `core/src/graph-client.ts`
+2. Define Zod schema in `core/src/types.ts`
+3. Validate API response with schema
+4. Export type from schema
+
+## Azure AD Permissions
+
+Current scopes:
+
+- `Calendars.Read` - read calendar events
+- `User.Read` - basic profile info
+
+To add permissions:
+
+1. Update in Azure Portal app registration
+2. Grant admin consent if required
+3. Update `GRAPH_SCOPES` in `.env.example`
+4. Clear auth cache: `rm -rf .auth-cache`

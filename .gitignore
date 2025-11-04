@@ -1,0 +1,21 @@
+node_modules
+dist
+.env
+.cache
+*.log
+.DS_Store
+.vitest
+coverage
+
+# Token cache
+.auth-cache
+
+# TypeScript build artifacts
+*.tsbuildinfo
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+!packages/*/dist/**/*
+!*.config.js
+!.husky/*.js
