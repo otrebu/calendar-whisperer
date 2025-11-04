@@ -42,15 +42,15 @@
 
 ### Config Command
 
-- [ ] **11** feat(cli): add config show command
-- [ ] **12** chore(cli): register config command
+- [x] **11** feat(cli): add config show command
+- [x] **12** chore(cli): register config command
 
 ### Events Command Enhancement
 
-- [ ] **13** feat(cli): add date range options to events command
-- [ ] **14** feat(cli): add work schedule CLI overrides
-- [ ] **15** feat(cli): add analytics display to events
-- [ ] **16** docs(cli): update README with CLI examples
+- [x] **13** feat(cli): add date range options to events command
+- [x] **14** feat(cli): add work schedule CLI overrides
+- [x] **15** feat(cli): add analytics display to events
+- [x] **16** docs(cli): update README with CLI examples
 
 ### PR #2 Checkpoint
 
