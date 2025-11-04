@@ -53,3 +53,22 @@ export const authenticationRecordSchema = z.object({
 export type AuthenticationRecordData = z.infer<
   typeof authenticationRecordSchema
 >;
+
+// Analytics types
+export interface DailyBreakdown {
+  // ISO date string (YYYY-MM-DD)
+  date: string;
+  focusMinutes: number;
+  meetingCount: number;
+  meetingMinutes: number;
+  workMinutes: number;
+}
+
+export interface MeetingAnalytics {
+  dailyBreakdown: Array<DailyBreakdown>;
+  focusPercentage: number;
+  meetingPercentage: number;
+  totalFocusMinutes: number;
+  totalMeetingMinutes: number;
+  totalMeetings: number;
+}
