@@ -10,15 +10,16 @@
 
 ### Date Range Utilities (TDD)
 
-- [ ] **1** test(core): add date range utilities test suite
-- [ ] **2** feat(core): implement date range calculation utilities
-- [ ] **3** test(core): add edge case tests for date range
+- [x] **1** test(core): add date range utilities test suite
+- [x] **2** feat(core): implement date range calculation utilities
+- [x] **3** test(core): add edge case tests for date range
+  _Note: Edge cases included in commit 1 test suite (DST, leap years, etc.)_
 
 ### Config Schema
 
-- [ ] **4** test(core): add work config validation tests
-- [ ] **5** feat(core): extend config schema with work schedule
-- [ ] **6** docs(core): update .env.example with work variables
+- [x] **4** test(core): add work config validation tests
+- [x] **5** feat(core): extend config schema with work schedule
+- [x] **6** docs(core): update .env.example with work variables
 
 ### Analytics Engine
 
