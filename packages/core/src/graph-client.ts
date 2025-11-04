@@ -6,6 +6,15 @@ import type { CalendarEvent } from "./types.js";
 import { calendarEventSchema } from "./types.js";
 
 /**
+ * Options for fetching calendar events in a date range
+ */
+export interface FetchEventsOptions {
+  endDate: Date;
+  startDate: Date;
+  timeZone?: string;
+}
+
+/**
  * Create a Microsoft Graph client with the provided access token.
  */
 export function createGraphClient(accessToken: string): Client {
@@ -53,6 +62,23 @@ export async function fetchCalendarEvents(
   const eventsArray = z.array(calendarEventSchema).parse(responseData.value);
 
   return eventsArray;
+}
+
+/**
+ * Fetch calendar events for a date range using Date objects.
+ * Convenience wrapper around fetchCalendarEvents.
+ */
+export async function fetchCalendarEventsInRange(
+  client: Client,
+  options: FetchEventsOptions,
+): Promise<Array<CalendarEvent>> {
+  const { endDate, startDate, timeZone = "UTC" } = options;
+
+  return fetchCalendarEvents(client, {
+    endDateTime: endDate.toISOString(),
+    startDateTime: startDate.toISOString(),
+    timeZone,
+  });
 }
 
 /**
