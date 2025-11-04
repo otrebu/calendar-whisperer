@@ -53,6 +53,11 @@ function loadConfig(): Config {
     azureTenantId: process.env.AZURE_TENANT_ID,
     cacheDirectory: process.env.CACHE_DIRECTORY,
     graphScopes: process.env.GRAPH_SCOPES,
+    workDays: process.env.WORK_DAYS,
+    workDaysPerWeek: process.env.WORK_DAYS_PER_WEEK,
+    workEndHour: process.env.WORK_END_HOUR,
+    workHoursPerWeek: process.env.WORK_HOURS_PER_WEEK,
+    workStartHour: process.env.WORK_START_HOUR,
   });
 
   // Resolve cache directory to absolute path
@@ -74,15 +79,58 @@ function resolveCacheDirectory(cacheDirectory: string): string {
   return path.resolve(monorepoRoot, cacheDirectory);
 }
 
-export const configSchema = z.object({
-  azureClientId: z.string().min(1, "Azure Client ID is required"),
-  azureTenantId: z.string().min(1, "Azure Tenant ID is required"),
-  cacheDirectory: z.string().default(".auth-cache"),
-  graphScopes: z
-    .string()
-    .default("https://graph.microsoft.com/.default")
-    .transform((s) => s.split(",")),
-});
+const workDaysSchema = z
+  .string()
+  .default("1,2,3,4,5")
+  .transform((s) =>
+    s.split(",").map((day) => {
+      const parsed = Number.parseInt(day.trim(), 10);
+      if (Number.isNaN(parsed) || parsed < 0 || parsed > 6) {
+        throw new Error(
+          `Invalid work day: ${day}. Must be between 0 (Sunday) and 6 (Saturday)`,
+        );
+      }
+      return parsed;
+    }),
+  );
+
+const workHourSchema = z.coerce
+  .number()
+  .min(0, "Hour must be >= 0")
+  .max(24, "Hour must be <= 24");
+
+export const configSchema = z
+  .object({
+    azureClientId: z.string().min(1, "Azure Client ID is required"),
+    azureTenantId: z.string().min(1, "Azure Tenant ID is required"),
+    cacheDirectory: z.string().default(".auth-cache"),
+    graphScopes: z
+      .string()
+      .default("https://graph.microsoft.com/.default")
+      .transform((s) => s.split(",")),
+    workDays: workDaysSchema,
+    workDaysPerWeek: z.coerce.number().default(5),
+    workEndHour: workHourSchema.default(17),
+    workHoursPerWeek: z.coerce.number().default(40),
+    workStartHour: workHourSchema.default(9),
+  })
+  .transform((data) => ({
+    azureClientId: data.azureClientId,
+    azureTenantId: data.azureTenantId,
+    cacheDirectory: data.cacheDirectory,
+    graphScopes: data.graphScopes,
+    work: {
+      daysPerWeek: data.workDaysPerWeek,
+      endHour: data.workEndHour,
+      hoursPerWeek: data.workHoursPerWeek,
+      startHour: data.workStartHour,
+      workDays: data.workDays,
+    },
+  }))
+  .refine((data) => data.work.startHour < data.work.endHour, {
+    message: "Work start hour must be less than end hour",
+    path: ["workStartHour"],
+  });
 
 export type Config = z.infer<typeof configSchema>;
 
