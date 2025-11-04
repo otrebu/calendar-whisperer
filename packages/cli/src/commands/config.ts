@@ -25,7 +25,7 @@ const configCommand = new Command("config")
                 "Friday",
                 "Saturday",
               ];
-              return days[day];
+              return days[day] ?? `Unknown(${day})`;
             })
             .join(", ");
 
