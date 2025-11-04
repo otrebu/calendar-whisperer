@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { configCommand } from "./commands/config.js";
 import { eventsCommand } from "./commands/events.js";
 import { webCommand } from "./commands/web.js";
 
@@ -17,6 +18,7 @@ const program = new Command()
   .description("Provide insights about time spent in meetings and focus work")
   .version("0.1.0");
 
+program.addCommand(configCommand);
 program.addCommand(eventsCommand);
 program.addCommand(webCommand);
 
