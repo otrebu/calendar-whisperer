@@ -13,7 +13,7 @@
 - [x] **1** test(core): add date range utilities test suite
 - [x] **2** feat(core): implement date range calculation utilities
 - [x] **3** test(core): add edge case tests for date range
-  _Note: Edge cases included in commit 1 test suite (DST, leap years, etc.)_
+      _Note: Edge cases included in commit 1 test suite (DST, leap years, etc.)_
 
 ### Config Schema
 
@@ -23,10 +23,10 @@
 
 ### Analytics Engine
 
-- [ ] **7** test(core): add meeting analytics calculation tests
-- [ ] **8** feat(core): implement meeting analytics engine
-- [ ] **9** feat(core): add Graph client date range support
-- [ ] **10** feat(core): export analytics and date utilities
+- [x] **7** test(core): add meeting analytics calculation tests
+- [x] **8** feat(core): implement meeting analytics engine
+- [x] **9** feat(core): add Graph client date range support
+- [x] **10** feat(core): export analytics and date utilities
 
 ### PR #1 Checkpoint
 
