@@ -22,12 +22,18 @@ import { createSpinner } from "../ui/spinner.js";
 /**
  * Handles authentication flow with device code
  */
-async function authenticate(config: ReturnType<typeof loadConfig>): Promise<string> {
-  const cachedAuthRecord = await loadAuthenticationRecord(config.cacheDirectory);
+async function authenticate(
+  config: ReturnType<typeof loadConfig>,
+): Promise<string> {
+  const cachedAuthRecord = await loadAuthenticationRecord(
+    config.cacheDirectory,
+  );
 
   if (cachedAuthRecord === null) {
     // No cached auth record - need to authenticate with device code
-    console.log("No valid cached authentication found. Starting authentication...\n");
+    console.log(
+      "No valid cached authentication found. Starting authentication...\n",
+    );
 
     const credential = createDeviceCodeCredential(config, (deviceCodeInfo) => {
       showDeviceCode(deviceCodeInfo);
@@ -36,7 +42,10 @@ async function authenticate(config: ReturnType<typeof loadConfig>): Promise<stri
     const spinner = createSpinner("Waiting for authentication...");
     spinner.start();
 
-    const authRecord = await authenticateWithDeviceCode(credential, config.graphScopes);
+    const authRecord = await authenticateWithDeviceCode(
+      credential,
+      config.graphScopes,
+    );
 
     if (authRecord === undefined) {
       spinner.fail("Authentication failed");
@@ -67,14 +76,20 @@ async function authenticate(config: ReturnType<typeof loadConfig>): Promise<stri
     // Silent auth failed - re-authenticate
     console.log("\nCached authentication expired. Re-authenticating...\n");
 
-    const newCredential = createDeviceCodeCredential(config, (deviceCodeInfo) => {
-      showDeviceCode(deviceCodeInfo);
-    });
+    const newCredential = createDeviceCodeCredential(
+      config,
+      (deviceCodeInfo) => {
+        showDeviceCode(deviceCodeInfo);
+      },
+    );
 
     const spinner = createSpinner("Waiting for authentication...");
     spinner.start();
 
-    const authRecord = await authenticateWithDeviceCode(newCredential, config.graphScopes);
+    const authRecord = await authenticateWithDeviceCode(
+      newCredential,
+      config.graphScopes,
+    );
 
     if (authRecord === undefined) {
       spinner.fail("Authentication failed");
@@ -86,6 +101,74 @@ async function authenticate(config: ReturnType<typeof loadConfig>): Promise<stri
     spinner.succeed("Authentication successful!");
     return authResult.accessToken;
   }
+}
+
+/**
+ * Parse date range from options
+ */
+function parseDateRange(
+  dateArgument: string | undefined,
+  options: {
+    endDate?: string;
+    startDate?: string;
+  },
+  workDays: Array<number>,
+): {
+  dateRangeEnd: Date | null;
+  dateRangeStart: Date | null;
+  singleDate: Date | null;
+} {
+  const isDateRangeMode = options.startDate !== undefined;
+
+  if (
+    isDateRangeMode &&
+    options.startDate !== undefined &&
+    options.startDate !== ""
+  ) {
+    // Date range mode
+    const parsedStart = parseISO(options.startDate);
+    if (Number.isNaN(parsedStart.getTime())) {
+      console.error("\nError: Invalid start date format. Use YYYY-MM-DD");
+      process.exit(1);
+    }
+
+    const parsedEnd =
+      options.endDate !== undefined && options.endDate !== ""
+        ? (() => {
+            const end = parseISO(options.endDate);
+            if (Number.isNaN(end.getTime())) {
+              console.error(
+                "\nError: Invalid end date format. Use YYYY-MM-DD",
+              );
+              process.exit(1);
+            }
+            return end;
+          })()
+        : calculateWorkWeekEnd(parsedStart, workDays);
+
+    return {
+      dateRangeEnd: parsedEnd,
+      dateRangeStart: parsedStart,
+      singleDate: null,
+    };
+  }
+
+  // Single date mode
+  const parsedDate =
+    dateArgument !== undefined && dateArgument !== ""
+      ? parseISO(dateArgument)
+      : new Date();
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    console.error("\nError: Invalid date format. Use YYYY-MM-DD");
+    process.exit(1);
+  }
+
+  return {
+    dateRangeEnd: null,
+    dateRangeStart: null,
+    singleDate: parsedDate,
+  };
 }
 
 const eventsCommand = new Command("events")
@@ -103,53 +186,37 @@ const eventsCommand = new Command("events")
     "-e, --end-date <date>",
     "End date in YYYY-MM-DD format (defaults to end of work week from start date)",
   )
+  .option(
+    "--hours-per-week <hours>",
+    "Override hours per week (default from config)",
+  )
+  .option(
+    "--days-per-week <days>",
+    "Override days per week (default from config)",
+  )
   .action(async (dateArgument, options) => {
     try {
       const config = loadConfig();
 
-      // Determine if we're using date range or single date mode
+      // Apply CLI overrides to work schedule config
+      const workConfig = {
+        ...config.work,
+        ...(options.hoursPerWeek !== undefined && options.hoursPerWeek !== ""
+          ? { hoursPerWeek: Number.parseInt(options.hoursPerWeek, 10) }
+          : {}),
+        ...(options.daysPerWeek !== undefined && options.daysPerWeek !== ""
+          ? { daysPerWeek: Number.parseInt(options.daysPerWeek, 10) }
+          : {}),
+      };
+
+      // Parse date range or single date
+      const { dateRangeEnd, dateRangeStart, singleDate } = parseDateRange(
+        dateArgument,
+        options,
+        workConfig.workDays,
+      );
+
       const isDateRangeMode = options.startDate !== undefined;
-
-      let dateRangeStart: Date | null = null;
-      let dateRangeEnd: Date | null = null;
-      let singleDate: Date | null = null;
-
-      if (isDateRangeMode && options.startDate !== undefined && options.startDate !== "") {
-        // Date range mode
-        const parsedStart = parseISO(options.startDate);
-        if (Number.isNaN(parsedStart.getTime())) {
-          console.error("\nError: Invalid start date format. Use YYYY-MM-DD");
-          process.exit(1);
-        }
-        dateRangeStart = parsedStart;
-
-        if (options.endDate !== undefined && options.endDate !== "") {
-          const parsedEnd = parseISO(options.endDate);
-          if (Number.isNaN(parsedEnd.getTime())) {
-            console.error("\nError: Invalid end date format. Use YYYY-MM-DD");
-            process.exit(1);
-          }
-          dateRangeEnd = parsedEnd;
-        } else {
-          // Calculate end of work week from start date
-          dateRangeEnd = calculateWorkWeekEnd(
-            parsedStart,
-            config.work.workDays,
-          );
-        }
-      } else {
-        // Single date mode
-        const parsedDate =
-          dateArgument !== undefined && dateArgument !== ""
-            ? parseISO(dateArgument)
-            : new Date();
-
-        if (Number.isNaN(parsedDate.getTime())) {
-          console.error("\nError: Invalid date format. Use YYYY-MM-DD");
-          process.exit(1);
-        }
-        singleDate = parsedDate;
-      }
 
       // Authenticate
       const accessToken = await authenticate(config);
