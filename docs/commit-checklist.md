@@ -54,10 +54,10 @@
 
 ### PR #2 Checkpoint
 
-- [ ] `pnpm build` succeeds
-- [ ] `pnpm dev events --start-date 2025-04-07` works
-- [ ] `pnpm dev config show` displays work config
-- [ ] Analytics display formatted correctly (boxen + tables)
+- [x] `pnpm build` succeeds
+- [x] `pnpm dev events --start-date 2025-04-07` works
+- [x] `pnpm dev config show` displays work config
+- [x] Analytics display formatted correctly (boxen + tables)
 - [ ] Create PR: "feat(cli): analytics commands"
 
 ---
