@@ -1,6 +1,9 @@
 import {
+  analyzeMeetings,
   authenticateWithDeviceCode,
+  calculateTotalWorkHours,
   calculateWorkWeekEnd,
+  countWorkDays,
   createDeviceCodeCredential,
   createGraphClient,
   fetchCalendarEventsInRange,
@@ -13,6 +16,7 @@ import {
 import { Command } from "@commander-js/extra-typings";
 import { parseISO } from "date-fns";
 
+import { showAnalytics } from "../ui/analytics.js";
 import { showDeviceCode } from "../ui/device-code.js";
 import { showEvents } from "../ui/events.js";
 import { createSpinner } from "../ui/spinner.js";
@@ -137,9 +141,7 @@ function parseDateRange(
         ? (() => {
             const end = parseISO(options.endDate);
             if (Number.isNaN(end.getTime())) {
-              console.error(
-                "\nError: Invalid end date format. Use YYYY-MM-DD",
-              );
+              console.error("\nError: Invalid end date format. Use YYYY-MM-DD");
               process.exit(1);
             }
             return end;
@@ -194,6 +196,7 @@ const eventsCommand = new Command("events")
     "--days-per-week <days>",
     "Override days per week (default from config)",
   )
+  .option("--no-analytics", "Disable analytics summary display")
   .action(async (dateArgument, options) => {
     try {
       const config = loadConfig();
@@ -243,6 +246,27 @@ const eventsCommand = new Command("events")
 
       const displayDate = singleDate ?? dateRangeStart ?? new Date();
       showEvents(events, displayDate);
+
+      // Show analytics if in date range mode (unless explicitly disabled)
+      if (dateRangeStart && dateRangeEnd && options.analytics) {
+        const workDayCount = countWorkDays(
+          dateRangeStart,
+          dateRangeEnd,
+          workConfig.workDays,
+        );
+        const totalWorkHours = calculateTotalWorkHours(
+          workDayCount,
+          workConfig.hoursPerWeek,
+          workConfig.daysPerWeek,
+        );
+        const analytics = analyzeMeetings({
+          endDate: dateRangeEnd,
+          events,
+          startDate: dateRangeStart,
+          totalWorkMinutes: totalWorkHours * 60,
+        });
+        showAnalytics(analytics);
+      }
     } catch (error) {
       if (error instanceof Error) {
         console.error(`\nError: ${error.message}`);
